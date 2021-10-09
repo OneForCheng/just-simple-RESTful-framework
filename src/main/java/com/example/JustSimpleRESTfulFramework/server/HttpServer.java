@@ -28,8 +28,8 @@ public final class HttpServer {
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new HttpServerInitializer(sslContext));
             Channel channel = serverBootstrap.bind(ServerConfig.getPort()).sync().channel();
-            channel.closeFuture().sync();
             System.out.printf("Open your web browser and navigate to %s://127.0.0.1:%s%n", ServerConfig.getProtocol(), ServerConfig.getPort());
+            channel.closeFuture().sync();
         } catch (InterruptedException e) {
             throw new HttpServerException("bootstrap server failed.", e);
         } finally {
@@ -39,7 +39,7 @@ public final class HttpServer {
     }
 
     private SslContext getSslContext() {
-        if (ServerConfig.isSSL()) return null;
+        if (!ServerConfig.isSSL()) return null;
         SslContext sslCtx;
         try {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
