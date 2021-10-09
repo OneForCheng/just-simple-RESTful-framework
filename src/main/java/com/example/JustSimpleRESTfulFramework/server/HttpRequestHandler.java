@@ -1,4 +1,4 @@
-package com.example.JustSimpleRESTfulFramework;
+package com.example.JustSimpleRESTfulFramework.server;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -16,7 +16,7 @@ import static io.netty.handler.codec.http.HttpVersion.*;
 
 import org.json.JSONObject;
 
-public class CustomizedHttpHandler extends ChannelInboundHandlerAdapter {
+public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
     private static final AsciiString CONTENT_TYPE = new AsciiString("Content-Type");
     private static final AsciiString CONTENT_LENGTH = new AsciiString("Content-Length");
     private static final AsciiString CONNECTION = new AsciiString("Connection");
