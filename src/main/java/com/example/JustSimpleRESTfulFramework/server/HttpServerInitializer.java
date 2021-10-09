@@ -21,8 +21,8 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         if (sslCtx != null) {
             pipeline.addLast(sslCtx.newHandler(channel.alloc()));
         }
-        pipeline.addLast(new HttpServerCodec());// HTTP 服务的解码器
-        pipeline.addLast(new HttpObjectAggregator(ServerConfig.getMaxContentLength()));// HTTP 消息的合并处理
-        pipeline.addLast(new HttpRequestHandler()); // 自定义服务器逻辑处理
+        pipeline.addLast(new HttpServerCodec());
+        pipeline.addLast(new HttpObjectAggregator(ServerConfig.getMaxContentLength()));
+        pipeline.addLast(new HttpRequestHandler());
     }
 }
