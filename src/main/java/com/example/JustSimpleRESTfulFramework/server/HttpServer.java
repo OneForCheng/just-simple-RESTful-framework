@@ -2,6 +2,7 @@ package com.example.JustSimpleRESTfulFramework.server;
 
 import com.example.JustSimpleRESTfulFramework.config.BaseServerConfig;
 import com.example.JustSimpleRESTfulFramework.exception.HttpServerException;
+import com.example.JustSimpleRESTfulFramework.resource.ResourceResolver;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -21,7 +22,7 @@ public final class HttpServer {
         this.serverConfig = serverConfig;
     }
 
-    public void run() {
+    public void run(ResourceResolver resourceResolver) {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         SslContext sslContext = getSslContext();
@@ -32,7 +33,7 @@ public final class HttpServer {
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new HttpServerHandler(serverConfig, sslContext));
+                    .childHandler(new HttpServerHandler(serverConfig, sslContext, resourceResolver));
             Channel channel = serverBootstrap.bind(serverConfig.getPort()).sync().channel();
             System.out.printf("Open your web browser and navigate to %s://127.0.0.1:%s%n", serverConfig.getProtocol(), serverConfig.getPort());
             channel.closeFuture().sync();

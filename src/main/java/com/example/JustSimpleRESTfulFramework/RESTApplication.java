@@ -1,20 +1,21 @@
 package com.example.JustSimpleRESTfulFramework;
 
 import com.example.JustSimpleRESTfulFramework.config.BaseServerConfig;
+import com.example.JustSimpleRESTfulFramework.resource.ResourceResolver;
 import com.example.JustSimpleRESTfulFramework.server.HttpServer;
 
 public final class RESTApplication {
-    private BaseServerConfig serverConfig;
+    private HttpServer httpServer;
 
     public RESTApplication() {
-        serverConfig = new BaseServerConfig();
+        httpServer = new HttpServer(new BaseServerConfig());
     }
 
     public RESTApplication(BaseServerConfig serverConfig) {
-        this.serverConfig = serverConfig;
+        httpServer = new HttpServer(serverConfig);
     }
 
     public void bootstrap(Class<?> bootstrapClass) {
-        new HttpServer(serverConfig).run();
+        httpServer.run(new ResourceResolver(bootstrapClass));
     }
 }
