@@ -1,6 +1,6 @@
 package com.example.JustSimpleRESTfulFramework.server;
 
-import com.example.JustSimpleRESTfulFramework.config.ServerConfig;
+import com.example.JustSimpleRESTfulFramework.config.BaseServerConfig;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -10,8 +10,10 @@ import io.netty.handler.ssl.SslContext;
 
 public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
     private final SslContext sslCtx;
+    private final BaseServerConfig serverConfig;
 
-    public HttpServerInitializer(SslContext sslCtx) {
+    public HttpServerInitializer(BaseServerConfig serverConfig, SslContext sslCtx) {
+        this.serverConfig = serverConfig;
         this.sslCtx = sslCtx;
     }
 
@@ -22,7 +24,7 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
             pipeline.addLast(sslCtx.newHandler(channel.alloc()));
         }
         pipeline.addLast(new HttpServerCodec());
-        pipeline.addLast(new HttpObjectAggregator(ServerConfig.getMaxContentLength()));
+        pipeline.addLast(new HttpObjectAggregator(serverConfig.getMaxContentLength()));
         pipeline.addLast(new HttpRequestHandler());
     }
 }

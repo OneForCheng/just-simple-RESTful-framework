@@ -1,6 +1,6 @@
 package com.example.JustSimpleRESTfulFramework.server;
 
-import com.example.JustSimpleRESTfulFramework.config.ServerConfig;
+import com.example.JustSimpleRESTfulFramework.config.BaseServerConfig;
 import com.example.JustSimpleRESTfulFramework.exception.HttpServerException;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -15,6 +15,12 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 public final class HttpServer {
+    private final BaseServerConfig serverConfig;
+
+    public HttpServer(BaseServerConfig serverConfig) {
+        this.serverConfig = serverConfig;
+    }
+
     public void run() {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -26,9 +32,9 @@ public final class HttpServer {
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new HttpServerInitializer(sslContext));
-            Channel channel = serverBootstrap.bind(ServerConfig.getPort()).sync().channel();
-            System.out.printf("Open your web browser and navigate to %s://127.0.0.1:%s%n", ServerConfig.getProtocol(), ServerConfig.getPort());
+                    .childHandler(new HttpServerInitializer(serverConfig, sslContext));
+            Channel channel = serverBootstrap.bind(serverConfig.getPort()).sync().channel();
+            System.out.printf("Open your web browser and navigate to %s://127.0.0.1:%s%n", serverConfig.getProtocol(), serverConfig.getPort());
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
             throw new HttpServerException("bootstrap server failed.", e);
@@ -39,7 +45,7 @@ public final class HttpServer {
     }
 
     private SslContext getSslContext() {
-        if (!ServerConfig.isSSL()) return null;
+        if (!serverConfig.isSSL()) return null;
         SslContext sslCtx;
         try {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
