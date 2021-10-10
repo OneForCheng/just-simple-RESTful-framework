@@ -3,6 +3,7 @@ package com.example.JustSimpleRESTfulFramework.server;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.example.JustSimpleRESTfulFramework.config.ResponseConfig;
+import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import com.example.JustSimpleRESTfulFramework.resource.ResourceResolver;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -13,7 +14,6 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpUtil;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
 
 public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
@@ -28,8 +28,8 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof FullHttpRequest) {
             FullHttpRequest req = (FullHttpRequest) msg;
             String uri = req.uri();
-            String result = uri;
-            populateResponse(ctx, req, result);
+            ResponseResult responseResult = resourceResolver.resolveUri(uri);
+            populateResponse(ctx, req, responseResult);
         }
     }
 
@@ -44,10 +44,10 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
         ctx.flush();
     }
 
-    private void populateResponse(ChannelHandlerContext ctx, FullHttpRequest req, Object content) {
+    private void populateResponse(ChannelHandlerContext ctx, FullHttpRequest req, ResponseResult res) {
         boolean isKeepAlive = HttpUtil.isKeepAlive(req);
-        byte[] bytes = JSON.toJSONBytes(content, SerializerFeature.EMPTY);
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(bytes));
+        byte[] bytes = JSON.toJSONBytes(res.getResult(), SerializerFeature.EMPTY);
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, res.getStatus(), Unpooled.wrappedBuffer(bytes));
         response.headers().set(ResponseConfig.CONTENT_TYPE, "text/json");
         response.headers().setInt(ResponseConfig.CONTENT_LENGTH, response.content().readableBytes());
         if (isKeepAlive) {
