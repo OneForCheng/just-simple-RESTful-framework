@@ -32,7 +32,7 @@ public final class HttpServer {
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new HttpServerInitializer(serverConfig, sslContext));
+                    .childHandler(new HttpServerHandler(serverConfig, sslContext));
             Channel channel = serverBootstrap.bind(serverConfig.getPort()).sync().channel();
             System.out.printf("Open your web browser and navigate to %s://127.0.0.1:%s%n", serverConfig.getProtocol(), serverConfig.getPort());
             channel.closeFuture().sync();

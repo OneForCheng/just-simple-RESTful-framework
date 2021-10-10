@@ -8,11 +8,11 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
 
-public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
+public class HttpServerHandler extends ChannelInitializer<SocketChannel> {
     private final SslContext sslCtx;
     private final BaseServerConfig serverConfig;
 
-    public HttpServerInitializer(BaseServerConfig serverConfig, SslContext sslCtx) {
+    public HttpServerHandler(BaseServerConfig serverConfig, SslContext sslCtx) {
         this.serverConfig = serverConfig;
         this.sslCtx = sslCtx;
     }
