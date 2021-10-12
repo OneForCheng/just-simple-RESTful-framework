@@ -1,8 +1,10 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.example.JustSimpleRESTfulFramework.annotation.*;
+import com.example.JustSimpleRESTfulFramework.model.RequestUrlAndMethod;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import com.thoughtworks.InjectContainer.InjectContainer;
+import io.netty.handler.codec.http.HttpMethod;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
@@ -13,33 +15,41 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ResourceResolver {
-    private final Map<Class<?>, List<String>> resources;
+    private final Map<Class<?>, List<RequestUrlAndMethod>> resources;
     private final InjectContainer injectContainer;
+    private final Map<Class, HttpMethod> REST_ANNOTATION_METHOD_MAP = new HashMap<>() {
+        {
+            put(GET.class, HttpMethod.GET);
+            put(POST.class, HttpMethod.POST);
+            put(PUT.class, HttpMethod.PUT);
+            put(DELETE.class, HttpMethod.DELETE);
+        }
+    };
 
     public ResourceResolver(Class<?> bootstrapClass) {
         resources = getRESTResources(bootstrapClass);
         injectContainer = new InjectContainer();
     }
 
-    private Map<Class<?>, List<String>> getRESTResources(Class<?> bootstrapClass) {
-        Map<Class<?>, List<String>> resources = Collections.synchronizedMap(new HashMap<>());
+    private Map<Class<?>, List<RequestUrlAndMethod>> getRESTResources(Class<?> bootstrapClass) {
+        Map<Class<?>, List<RequestUrlAndMethod>> resources = Collections.synchronizedMap(new HashMap<>());
         if (bootstrapClass.isAnnotationPresent(RESTResource.class)) {
             RESTResource annotation = bootstrapClass.getAnnotation(RESTResource.class);
             Arrays.stream(annotation.value()).forEach(resource -> {
-                List<String> urls = getAllUrlsOfResource(resource);
+                List<RequestUrlAndMethod> urls = getAllUrlAndMethodsOfResource(resource);
                 resources.put(resource, urls);
             });
         }
         return resources;
     }
 
-    private List<String> getAllUrlsOfResource(Class<?> resource) {
-        List<String> urls = new LinkedList<>();
-        resolveUrlOfResource(urls, UrlUtil.PATH_SEPARATOR, resource);
+    private List<RequestUrlAndMethod> getAllUrlAndMethodsOfResource(Class<?> resource) {
+        List<RequestUrlAndMethod> urls = new LinkedList<>();
+        resolveUrlAndMethodOfResource(urls, UrlUtil.PATH_SEPARATOR, resource);
         return urls;
     }
 
-    public void resolveUrlOfResource(List<String> urls, String parentPath, Class<?> resource) {
+    public void resolveUrlAndMethodOfResource(List<RequestUrlAndMethod> urls, String parentPath, Class<?> resource) {
         String newParentPath;
         if (resource.isAnnotationPresent(Path.class)) {
             newParentPath = UrlUtil.combinePath(parentPath, UrlUtil.getFormattedPath(resource.getAnnotation(Path.class).value()));
@@ -48,28 +58,30 @@ public class ResourceResolver {
         }
         List<Method> publicMethods = Arrays.stream(resource.getMethods()).filter(method -> Modifier.isPublic(method.getModifiers())).collect(Collectors.toList());
         publicMethods.forEach(method -> {
-            if (method.isAnnotationPresent(GET.class)) {
+            Optional<Class> annotationMethod = REST_ANNOTATION_METHOD_MAP.keySet().stream().filter(method::isAnnotationPresent).findAny();
+            if (annotationMethod.isPresent()) {
+                HttpMethod httpMethod = REST_ANNOTATION_METHOD_MAP.get(annotationMethod.get());
                 if (method.isAnnotationPresent(Path.class)) {
                     String formattedPath = UrlUtil.getFormattedPath(method.getAnnotation(Path.class).value());
                     String url =  UrlUtil.combinePath(newParentPath, formattedPath);
-                    urls.add(url);
+                    urls.add(new RequestUrlAndMethod(url, httpMethod));
                 } else {
-                    urls.add(newParentPath);
+                    urls.add(new RequestUrlAndMethod(newParentPath, httpMethod));
                 }
             }
-            if (!method.isAnnotationPresent(GET.class) && method.isAnnotationPresent(Path.class)) {
+            if (annotationMethod.isEmpty() && method.isAnnotationPresent(Path.class)) {
                 String nextParentPath = UrlUtil.combinePath(newParentPath, UrlUtil.getFormattedPath(method.getAnnotation(Path.class).value()));
-                resolveUrlOfResource(urls, nextParentPath, method.getReturnType());
+                resolveUrlAndMethodOfResource(urls, nextParentPath, method.getReturnType());
             }
         });
     }
 
-    public void populateResponseResult(ResponseResult responseResult, String url, Class<?> resource) throws InvocationTargetException, IllegalAccessException {
+    public void populateResponseResult(ResponseResult responseResult, RequestUrlAndMethod targetUrlAndMethod, Class<?> resource) throws InvocationTargetException, IllegalAccessException {
         Object resourceInstance = injectContainer.getInstance(resource);
-        resolveReturnResultOfResource(responseResult, url, UrlUtil.PATH_SEPARATOR, resource, resourceInstance);
+        resolveReturnResultOfResource(responseResult, targetUrlAndMethod, UrlUtil.PATH_SEPARATOR, resource, resourceInstance);
     }
 
-    public void resolveReturnResultOfResource(ResponseResult responseResult, String targetUrl, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
+    public void resolveReturnResultOfResource(ResponseResult responseResult, RequestUrlAndMethod targetUrlAndMethod, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
         String newParentPath;
         if (resource.isAnnotationPresent(Path.class)) {
             newParentPath = UrlUtil.combinePath(parentPath, UrlUtil.getFormattedPath(resource.getAnnotation(Path.class).value()));
@@ -78,37 +90,39 @@ public class ResourceResolver {
         }
         List<Method> publicMethods = Arrays.stream(resource.getMethods()).filter(method -> Modifier.isPublic(method.getModifiers())).collect(Collectors.toList());
         for (Method method : publicMethods) {
-            if (method.isAnnotationPresent(GET.class)) {
+            Optional<Class> annotationMethod = REST_ANNOTATION_METHOD_MAP.keySet().stream().filter(method::isAnnotationPresent).findAny();
+            if (annotationMethod.isPresent()) {
+                HttpMethod httpMethod = REST_ANNOTATION_METHOD_MAP.get(annotationMethod.get());
                 if (method.isAnnotationPresent(Path.class)) {
                     String formattedPath = UrlUtil.getFormattedPath(method.getAnnotation(Path.class).value());
                     String url =  UrlUtil.combinePath(newParentPath, formattedPath);
-                    if (url.equals(targetUrl)) {
+                    if (url.equals(targetUrlAndMethod.getUrl()) && httpMethod.equals(targetUrlAndMethod.getMethod())) {
                         Object result = method.invoke(resourceInstance);
                         responseResult.setResult(result);
                         return;
                     }
                 }
-                if (newParentPath.equals(targetUrl)) {
+                if (newParentPath.equals(targetUrlAndMethod.getUrl()) && httpMethod.equals(targetUrlAndMethod.getMethod())) {
                     Object result = method.invoke(resourceInstance);
                     responseResult.setResult(result);
                     return;
                 }
             }
-            if (!method.isAnnotationPresent(GET.class) && method.isAnnotationPresent(Path.class)) {
+            if (annotationMethod.isEmpty() && method.isAnnotationPresent(Path.class)) {
                 String nextParentPath = UrlUtil.combinePath(newParentPath, UrlUtil.getFormattedPath(method.getAnnotation(Path.class).value()));
                 Object returnTypeInstance = method.invoke(resourceInstance);
-                resolveReturnResultOfResource(responseResult, targetUrl, nextParentPath, method.getReturnType(), returnTypeInstance);
+                resolveReturnResultOfResource(responseResult, targetUrlAndMethod, nextParentPath, method.getReturnType(), returnTypeInstance);
             }
         }
     }
 
-    public ResponseResult resolveUri(String uri) {
+    public ResponseResult resolveUriAndMethod(String uri, HttpMethod method) {
         try {
             String url  = UrlUtil.combinePath(UrlUtil.PATH_SEPARATOR, UrlUtil.getFormattedPath(uri.split("\\?")[0]));
-            for (Map.Entry<Class<?>, List<String>> resource : resources.entrySet()) {
-                if (resource.getValue().contains(url)) {
+            for (Map.Entry<Class<?>, List<RequestUrlAndMethod>> resource : resources.entrySet()) {
+                if (resource.getValue().stream().anyMatch(item -> item.getUrl().equals(url) && item.getMethod().equals(method))) {
                     ResponseResult responseResult = new ResponseResult(OK, null);
-                    populateResponseResult(responseResult, url, resource.getKey());
+                    populateResponseResult(responseResult, new RequestUrlAndMethod(url, method), resource.getKey());
                     return responseResult;
                 }
             }

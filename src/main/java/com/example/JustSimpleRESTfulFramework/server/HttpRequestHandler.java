@@ -9,10 +9,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.*;
 
 import static io.netty.handler.codec.http.HttpVersion.*;
 
@@ -28,7 +25,8 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof FullHttpRequest) {
             FullHttpRequest req = (FullHttpRequest) msg;
             String uri = req.uri();
-            ResponseResult responseResult = resourceResolver.resolveUri(uri);
+            HttpMethod method = req.method();
+            ResponseResult responseResult = resourceResolver.resolveUriAndMethod(uri, method);
             populateResponse(ctx, req, responseResult);
         }
     }
