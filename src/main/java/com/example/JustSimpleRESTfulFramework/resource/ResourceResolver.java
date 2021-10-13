@@ -56,7 +56,7 @@ public class ResourceResolver {
         } else {
             newParentPath = parentPath;
         }
-        List<Method> publicMethods = Arrays.stream(resource.getMethods()).filter(method -> Modifier.isPublic(method.getModifiers())).collect(Collectors.toList());
+        List<Method> publicMethods = getPublicMethods(resource);
         publicMethods.forEach(method -> {
             Optional<Class> annotationMethod = REST_ANNOTATION_METHOD_MAP.keySet().stream().filter(method::isAnnotationPresent).findAny();
             if (annotationMethod.isPresent()) {
@@ -88,7 +88,7 @@ public class ResourceResolver {
         } else {
             newParentPath = parentPath;
         }
-        List<Method> publicMethods = Arrays.stream(resource.getMethods()).filter(method -> Modifier.isPublic(method.getModifiers())).collect(Collectors.toList());
+        List<Method> publicMethods = getPublicMethods(resource);
         for (Method method : publicMethods) {
             Optional<Class> annotationMethod = REST_ANNOTATION_METHOD_MAP.keySet().stream().filter(method::isAnnotationPresent).findAny();
             if (annotationMethod.isPresent()) {
@@ -114,6 +114,10 @@ public class ResourceResolver {
                 resolveReturnResultOfResource(responseResult, targetUrlAndMethod, nextParentPath, method.getReturnType(), returnTypeInstance);
             }
         }
+    }
+
+    private List<Method> getPublicMethods(Class<?> clazz) {
+        return Arrays.stream(clazz.getMethods()).filter(method -> Modifier.isPublic(method.getModifiers())).collect(Collectors.toList());
     }
 
     public ResponseResult resolveUriAndMethod(String uri, HttpMethod method) {
