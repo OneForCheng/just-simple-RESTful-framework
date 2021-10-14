@@ -6,5 +6,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RESTResource {
-    Class<?>[] value();
+    Class<?>[] resources() default {};
+    Class<?>[] qualifiers() default {};
 }
