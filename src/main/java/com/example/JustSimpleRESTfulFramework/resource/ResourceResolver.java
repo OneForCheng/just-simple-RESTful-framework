@@ -58,7 +58,7 @@ public class ResourceResolver {
         return urls;
     }
 
-    public void resolveUrlAndMethodOfResource(List<RequestUrlAndMethod> urls, String parentPath, Class<?> resource) {
+    private void resolveUrlAndMethodOfResource(List<RequestUrlAndMethod> urls, String parentPath, Class<?> resource) {
         String newParentPath;
         if (resource.isAnnotationPresent(Path.class)) {
             newParentPath = UrlUtil.combinePath(parentPath, UrlUtil.getFormattedPath(resource.getAnnotation(Path.class).value()));
@@ -85,12 +85,12 @@ public class ResourceResolver {
         });
     }
 
-    public void populateResponseResult(ResponseResult responseResult, RequestUrlAndMethod targetUrlAndMethod, Class<?> resource) throws InvocationTargetException, IllegalAccessException {
+    private void populateResponseResult(ResponseResult responseResult, RequestUrlAndMethod targetUrlAndMethod, Class<?> resource) throws InvocationTargetException, IllegalAccessException {
         Object resourceInstance = injectContainer.getInstance(resource);
         resolveReturnResultOfResource(responseResult, targetUrlAndMethod, UrlUtil.PATH_SEPARATOR, resource, resourceInstance);
     }
 
-    public void resolveReturnResultOfResource(ResponseResult responseResult, RequestUrlAndMethod targetUrlAndMethod, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
+    private void resolveReturnResultOfResource(ResponseResult responseResult, RequestUrlAndMethod targetUrlAndMethod, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
         String newParentPath;
         if (resource.isAnnotationPresent(Path.class)) {
             newParentPath = UrlUtil.combinePath(parentPath, UrlUtil.getFormattedPath(resource.getAnnotation(Path.class).value()));
