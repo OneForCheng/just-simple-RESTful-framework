@@ -7,6 +7,10 @@ import java.util.stream.Collectors;
 public class UrlResolver {
     public static final String PATH_SEPARATOR = "/";
 
+    public static String getBaseUrl(String uri) {
+        return uri.split("\\?")[0];
+    }
+
     public static String getFormattedPath(String url) {
         return Arrays.stream(url.split(PATH_SEPARATOR)).filter(path -> !path.isEmpty()).collect(Collectors.joining(PATH_SEPARATOR)).toLowerCase(Locale.ROOT);
     }

@@ -120,7 +120,7 @@ public class ResourceResolver {
 
     public ResponseResult resolveUriAndMethod(String uri, HttpMethod method) {
         try {
-            String url  = UrlResolver.combinePath(UrlResolver.PATH_SEPARATOR, UrlResolver.getFormattedPath(uri.split("\\?")[0]));
+            String url  = UrlResolver.combinePath(UrlResolver.PATH_SEPARATOR, UrlResolver.getFormattedPath(UrlResolver.getBaseUrl(uri)));
             for (Map.Entry<Class<?>, List<RequestUrlAndMethod>> resource : resources.entrySet()) {
                 if (resource.getValue().stream().anyMatch(item -> item.getUrl().equals(url) && item.getMethod().equals(method))) {
                     ResponseResult responseResult = new ResponseResult(OK, null);
