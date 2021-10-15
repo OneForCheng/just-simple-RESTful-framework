@@ -4,17 +4,17 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-public class UrlUtil {
+public class UrlResolver {
     public static final String PATH_SEPARATOR = "/";
 
     public static String getFormattedPath(String url) {
         return Arrays.stream(url.split(PATH_SEPARATOR)).filter(path -> !path.isEmpty()).collect(Collectors.joining(PATH_SEPARATOR)).toLowerCase(Locale.ROOT);
     }
 
-    public static String combinePath(String parentPath, String path) {
+    public static String combinePath(String parentPath, String childPath) {
         if (parentPath.equals(PATH_SEPARATOR)) {
-            return path.isEmpty() ? parentPath : parentPath + path;
+            return childPath.isEmpty() ? parentPath : parentPath + childPath;
         }
-        return path.isEmpty() ? parentPath : parentPath + PATH_SEPARATOR + path;
+        return childPath.isEmpty() ? parentPath : parentPath + PATH_SEPARATOR + childPath;
     }
 }
