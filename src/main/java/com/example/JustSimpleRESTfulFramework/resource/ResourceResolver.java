@@ -85,11 +85,6 @@ public class ResourceResolver {
         });
     }
 
-    private void populateResponseResult(ResponseResult responseResult, RequestUrlAndMethod targetUrlAndMethod, Class<?> resource) throws InvocationTargetException, IllegalAccessException {
-        Object resourceInstance = injectContainer.getInstance(resource);
-        resolveReturnResultOfResource(responseResult, targetUrlAndMethod, UrlUtil.PATH_SEPARATOR, resource, resourceInstance);
-    }
-
     private void resolveReturnResultOfResource(ResponseResult responseResult, RequestUrlAndMethod targetUrlAndMethod, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
         String newParentPath;
         if (resource.isAnnotationPresent(Path.class)) {
@@ -135,7 +130,9 @@ public class ResourceResolver {
             for (Map.Entry<Class<?>, List<RequestUrlAndMethod>> resource : resources.entrySet()) {
                 if (resource.getValue().stream().anyMatch(item -> item.getUrl().equals(url) && item.getMethod().equals(method))) {
                     ResponseResult responseResult = new ResponseResult(OK, null);
-                    populateResponseResult(responseResult, new RequestUrlAndMethod(url, method), resource.getKey());
+                    Class<?> clazz = resource.getKey();
+                    Object resourceInstance = injectContainer.getInstance(clazz);
+                    resolveReturnResultOfResource(responseResult, new RequestUrlAndMethod(url, method), UrlUtil.PATH_SEPARATOR, clazz, resourceInstance);
                     return responseResult;
                 }
             }
