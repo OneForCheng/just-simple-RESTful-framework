@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.example.JustSimpleRESTfulFramework.config.ResponseConfig;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
-import com.example.JustSimpleRESTfulFramework.resource.ResourceResolver;
+import com.example.JustSimpleRESTfulFramework.resource.RequestResolver;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,10 +14,10 @@ import io.netty.handler.codec.http.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
 
 public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
-    private final ResourceResolver resourceResolver;
+    private final RequestResolver requestResolver;
 
-    public HttpRequestHandler(ResourceResolver resourceResolver) {
-        this.resourceResolver = resourceResolver;
+    public HttpRequestHandler(RequestResolver requestResolver) {
+        this.requestResolver = requestResolver;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
             FullHttpRequest req = (FullHttpRequest) msg;
             String uri = req.uri();
             HttpMethod method = req.method();
-            ResponseResult responseResult = resourceResolver.resolveUriAndMethod(uri, method);
+            ResponseResult responseResult = requestResolver.resolveUriAndMethod(uri, method);
             populateResponse(ctx, req, responseResult);
         }
     }

@@ -12,7 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class ResourceResolver {
+public class RequestResolver {
     private final Map<Class<?>, List<RequestUrlAndMethod>> resources;
     private final InjectContainer injectContainer;
     private final Map<Class, HttpMethod> REST_ANNOTATION_METHOD_MAP = new HashMap<>() {
@@ -24,7 +24,7 @@ public class ResourceResolver {
         }
     };
 
-    public ResourceResolver(Class<?> bootstrapClass) {
+    public RequestResolver(Class<?> bootstrapClass) {
         resources = getResources(bootstrapClass);
         injectContainer = getInjectContainer(bootstrapClass);
     }
