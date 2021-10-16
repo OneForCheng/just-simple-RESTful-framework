@@ -1,6 +1,6 @@
 package com.example.JustSimpleRESTfulFramework.server;
 
-import com.example.JustSimpleRESTfulFramework.config.BaseServerConfig;
+import com.example.JustSimpleRESTfulFramework.config.BaseHttpServerConfig;
 import com.example.JustSimpleRESTfulFramework.exception.HttpServerException;
 import com.example.JustSimpleRESTfulFramework.resource.RequestResolver;
 import io.netty.bootstrap.ServerBootstrap;
@@ -16,10 +16,10 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 public final class HttpServer {
-    private final BaseServerConfig serverConfig;
+    private final BaseHttpServerConfig httpServerConfig;
 
-    public HttpServer(BaseServerConfig serverConfig) {
-        this.serverConfig = serverConfig;
+    public HttpServer(BaseHttpServerConfig httpServerConfig) {
+        this.httpServerConfig = httpServerConfig;
     }
 
     public void run(RequestResolver requestResolver) {
@@ -33,9 +33,9 @@ public final class HttpServer {
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new HttpServerHandler(serverConfig, sslContext, requestResolver));
-            Channel channel = serverBootstrap.bind(serverConfig.getPort()).sync().channel();
-            System.out.printf("Open your web browser and navigate to %s://127.0.0.1:%s%n", serverConfig.getProtocol(), serverConfig.getPort());
+                    .childHandler(new HttpServerHandler(httpServerConfig, sslContext, requestResolver));
+            Channel channel = serverBootstrap.bind(httpServerConfig.getPort()).sync().channel();
+            System.out.printf("Open your web browser and navigate to %s://127.0.0.1:%s%n", httpServerConfig.getProtocol(), httpServerConfig.getPort());
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
             throw new HttpServerException("bootstrap server failed.", e);
@@ -46,7 +46,7 @@ public final class HttpServer {
     }
 
     private SslContext getSslContext() {
-        if (!serverConfig.isSSL()) return null;
+        if (!httpServerConfig.isSSL()) return null;
         SslContext sslCtx;
         try {
             SelfSignedCertificate ssc = new SelfSignedCertificate();

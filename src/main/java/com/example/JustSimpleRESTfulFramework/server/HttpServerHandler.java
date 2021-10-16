@@ -1,6 +1,6 @@
 package com.example.JustSimpleRESTfulFramework.server;
 
-import com.example.JustSimpleRESTfulFramework.config.BaseServerConfig;
+import com.example.JustSimpleRESTfulFramework.config.BaseHttpServerConfig;
 import com.example.JustSimpleRESTfulFramework.resource.RequestResolver;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -11,11 +11,11 @@ import io.netty.handler.ssl.SslContext;
 
 public class HttpServerHandler extends ChannelInitializer<SocketChannel> {
     private final SslContext sslCtx;
-    private final BaseServerConfig serverConfig;
+    private final BaseHttpServerConfig httpServerConfig;
     private final RequestResolver requestResolver;
 
-    public HttpServerHandler(BaseServerConfig serverConfig, SslContext sslCtx, RequestResolver requestResolver) {
-        this.serverConfig = serverConfig;
+    public HttpServerHandler(BaseHttpServerConfig httpServerConfig, SslContext sslCtx, RequestResolver requestResolver) {
+        this.httpServerConfig = httpServerConfig;
         this.sslCtx = sslCtx;
         this.requestResolver = requestResolver;
     }
@@ -27,7 +27,7 @@ public class HttpServerHandler extends ChannelInitializer<SocketChannel> {
             pipeline.addLast(sslCtx.newHandler(channel.alloc()));
         }
         pipeline.addLast(new HttpServerCodec());
-        pipeline.addLast(new HttpObjectAggregator(serverConfig.getMaxContentLength()));
+        pipeline.addLast(new HttpObjectAggregator(httpServerConfig.getMaxContentLength()));
         pipeline.addLast(new HttpRequestHandler(requestResolver));
     }
 }

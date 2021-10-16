@@ -1,6 +1,6 @@
 package com.example.JustSimpleRESTfulFramework;
 
-import com.example.JustSimpleRESTfulFramework.config.BaseServerConfig;
+import com.example.JustSimpleRESTfulFramework.config.BaseHttpServerConfig;
 import com.example.JustSimpleRESTfulFramework.resource.RequestResolver;
 import com.example.JustSimpleRESTfulFramework.server.HttpServer;
 
@@ -8,11 +8,11 @@ public final class RESTApplication {
     private HttpServer httpServer;
 
     public RESTApplication() {
-        httpServer = new HttpServer(new BaseServerConfig());
+        httpServer = new HttpServer(new BaseHttpServerConfig());
     }
 
-    public RESTApplication(BaseServerConfig serverConfig) {
-        httpServer = new HttpServer(serverConfig);
+    public RESTApplication(BaseHttpServerConfig httpServerConfig) {
+        httpServer = new HttpServer(httpServerConfig);
     }
 
     public void bootstrap(Class<?> bootstrapClass) {

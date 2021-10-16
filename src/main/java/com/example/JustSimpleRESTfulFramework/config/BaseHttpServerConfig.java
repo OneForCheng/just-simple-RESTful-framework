@@ -2,7 +2,7 @@ package com.example.JustSimpleRESTfulFramework.config;
 
 import io.netty.util.internal.StringUtil;
 
-public class BaseServerConfig {
+public class BaseHttpServerConfig {
     public final int DEFAULT_PORT = 8080;
     public final int DEFAULT_MAX_CONTENT_LENGTH = 2048;
 
