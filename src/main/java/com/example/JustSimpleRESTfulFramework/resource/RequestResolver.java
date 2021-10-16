@@ -4,6 +4,7 @@ import com.example.JustSimpleRESTfulFramework.annotation.*;
 import com.example.JustSimpleRESTfulFramework.model.RequestUrlAndMethod;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import com.thoughtworks.InjectContainer.InjectContainer;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -118,7 +119,9 @@ public class RequestResolver {
         }
     }
 
-    public ResponseResult resolveUriAndMethod(String uri, HttpMethod method) {
+    public ResponseResult resolve(FullHttpRequest request) {
+        String uri = request.uri();
+        HttpMethod method = request.method();
         try {
             String url  = UrlResolver.combinePath(UrlResolver.PATH_SEPARATOR, UrlResolver.getFormattedPath(UrlResolver.getBaseUrl(uri)));
             for (Map.Entry<Class<?>, List<RequestUrlAndMethod>> resource : resources.entrySet()) {

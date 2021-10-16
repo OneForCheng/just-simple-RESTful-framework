@@ -24,10 +24,8 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof FullHttpRequest) {
             FullHttpRequest req = (FullHttpRequest) msg;
-            String uri = req.uri();
-            HttpMethod method = req.method();
-            ResponseResult responseResult = requestResolver.resolveUriAndMethod(uri, method);
-            populateResponse(ctx, req, responseResult);
+            ResponseResult responseResult = requestResolver.resolve(req);
+            populateResponse(ctx, responseResult, HttpUtil.isKeepAlive(req));
         }
     }
 
@@ -42,8 +40,7 @@ public class HttpRequestHandler extends ChannelInboundHandlerAdapter {
         ctx.flush();
     }
 
-    private void populateResponse(ChannelHandlerContext ctx, FullHttpRequest req, ResponseResult res) {
-        boolean isKeepAlive = HttpUtil.isKeepAlive(req);
+    private void populateResponse(ChannelHandlerContext ctx, ResponseResult res, boolean isKeepAlive) {
         byte[] bytes = JSON.toJSONBytes(res.getResult(), SerializerFeature.EMPTY);
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, res.getStatus(), Unpooled.wrappedBuffer(bytes));
         response.headers().set(ResponseConfig.CONTENT_TYPE, "text/json");
