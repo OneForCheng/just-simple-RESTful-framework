@@ -16,14 +16,6 @@ import java.util.*;
 public class RequestResolver {
     private final Map<Class<?>, List<RequestUrlAndMethod>> resources;
     private final InjectContainer injectContainer;
-    private final Map<Class, HttpMethod> REST_ANNOTATION_METHOD_MAP = new HashMap<>() {
-        {
-            put(GET.class, HttpMethod.GET);
-            put(POST.class, HttpMethod.POST);
-            put(PUT.class, HttpMethod.PUT);
-            put(DELETE.class, HttpMethod.DELETE);
-        }
-    };
 
     public RequestResolver(Class<?> bootstrapClass) {
         resources = getResources(bootstrapClass);
@@ -66,9 +58,9 @@ public class RequestResolver {
         }
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         publicMethods.forEach(method -> {
-            Optional<Class> annotationMethod = REST_ANNOTATION_METHOD_MAP.keySet().stream().filter(method::isAnnotationPresent).findAny();
-            if (annotationMethod.isPresent()) {
-                HttpMethod httpMethod = REST_ANNOTATION_METHOD_MAP.get(annotationMethod.get());
+            boolean isRestAnnotationMethod = AnnotationResolver.isRestAnnotationMethod(method);
+            if (isRestAnnotationMethod) {
+                HttpMethod httpMethod = AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method);
                 if (method.isAnnotationPresent(Path.class)) {
                     String formattedPath = UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value());
                     String url =  UrlResolver.combinePath(newParentPath, formattedPath);
@@ -77,7 +69,7 @@ public class RequestResolver {
                     urls.add(new RequestUrlAndMethod(newParentPath, httpMethod));
                 }
             }
-            if (annotationMethod.isEmpty() && method.isAnnotationPresent(Path.class)) {
+            if (!isRestAnnotationMethod && method.isAnnotationPresent(Path.class)) {
                 String nextParentPath = UrlResolver.combinePath(newParentPath, UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value()));
                 resolveUrlAndMethodOfResource(urls, nextParentPath, method.getReturnType());
             }
@@ -93,9 +85,9 @@ public class RequestResolver {
         }
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         for (Method method : publicMethods) {
-            Optional<Class> annotationMethod = REST_ANNOTATION_METHOD_MAP.keySet().stream().filter(method::isAnnotationPresent).findAny();
-            if (annotationMethod.isPresent()) {
-                HttpMethod httpMethod = REST_ANNOTATION_METHOD_MAP.get(annotationMethod.get());
+            boolean isRestAnnotationMethod = AnnotationResolver.isRestAnnotationMethod(method);
+            if (isRestAnnotationMethod) {
+                HttpMethod httpMethod = AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method);
                 if (method.isAnnotationPresent(Path.class)) {
                     String formattedPath = UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value());
                     String url =  UrlResolver.combinePath(newParentPath, formattedPath);
@@ -111,7 +103,7 @@ public class RequestResolver {
                     return;
                 }
             }
-            if (annotationMethod.isEmpty() && method.isAnnotationPresent(Path.class)) {
+            if (!isRestAnnotationMethod && method.isAnnotationPresent(Path.class)) {
                 String nextParentPath = UrlResolver.combinePath(newParentPath, UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value()));
                 Object returnTypeInstance = method.invoke(resourceInstance);
                 resolveReturnResultOfResource(responseResult, targetUrlAndMethod, nextParentPath, method.getReturnType(), returnTypeInstance);
