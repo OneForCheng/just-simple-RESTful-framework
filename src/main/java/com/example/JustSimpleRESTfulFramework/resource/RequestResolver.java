@@ -24,22 +24,18 @@ public class RequestResolver {
 
     private Map<Class<?>, List<RequestUrlAndMethod>> getResources(Class<?> bootstrapClass) {
         Map<Class<?>, List<RequestUrlAndMethod>> resources = Collections.synchronizedMap(new HashMap<>());
-        if (bootstrapClass.isAnnotationPresent(RouteResource.class)) {
-            RouteResource annotation = bootstrapClass.getAnnotation(RouteResource.class);
-            Arrays.stream(annotation.resources()).forEach(resource -> {
-                List<RequestUrlAndMethod> urls = getAllUrlAndMethodsOfResource(resource);
-                resources.put(resource, urls);
-            });
-        }
+        Class<?>[] routeResources = AnnotationResolver.getAnnotatedRouteResources(bootstrapClass);
+        Arrays.stream(routeResources).forEach(resource -> {
+            List<RequestUrlAndMethod> urls = getAllUrlAndMethodsOfResource(resource);
+            resources.put(resource, urls);
+        });
         return resources;
     }
 
     private InjectContainer getInjectContainer(Class<?> bootstrapClass) {
         InjectContainer injectContainer = new InjectContainer();
-        if (bootstrapClass.isAnnotationPresent(RouteResource.class)) {
-            RouteResource annotation = bootstrapClass.getAnnotation(RouteResource.class);
-            Arrays.stream(annotation.qualifiers()).forEach(injectContainer::registerQualifiedClass);
-        }
+        Class<?>[] classQualifiers = AnnotationResolver.getAnnotatedClassQualifiers(bootstrapClass);
+        Arrays.stream(classQualifiers).forEach(injectContainer::registerQualifiedClass);
         return injectContainer;
     }
 
