@@ -17,18 +17,9 @@ public class ParamResolver {
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(QueryParam.class)) {
                 String paramName = parameter.getAnnotation(QueryParam.class).value();
-                List<String> values = params.get(paramName);
-                if (values == null) {
-                    parameterInstances.add(null);
-                } else if (parameter.getType().isArray() || parameter.getType().equals(List.class)) {
-                    Object instance = JSON.parseObject(JSON.toJSONString(values), parameter.getType());
-                    parameterInstances.add(instance);
-                } else if (parameter.getType().equals(String.class)) {
-                    parameterInstances.add(values.get(0));
-                } else {
-                    Object instance = JSON.parseObject(values.get(0), parameter.getType());
-                    parameterInstances.add(instance);
-                }
+                List<String> paramValues = params.get(paramName);
+                Object parameterInstance = getParameterInstance(parameter.getType(), paramValues);
+                parameterInstances.add(parameterInstance);
             }
         }
 
@@ -36,5 +27,12 @@ public class ParamResolver {
             throw new BadRequestException("Bad Request");
         }
         return parameterInstances.toArray();
+    }
+
+    public static Object getParameterInstance(Class<?> paramType, List<String> paramValues) {
+        if (paramValues == null) return null;
+        if (paramType.isArray() || paramType.equals(List.class)) return JSON.parseObject(JSON.toJSONString(paramValues), paramType);
+        if (paramType.equals(String.class)) return paramValues.get(0);
+        return JSON.parseObject(paramValues.get(0), paramType);
     }
 }
