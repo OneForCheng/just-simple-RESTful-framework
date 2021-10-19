@@ -14,13 +14,21 @@ public class ParamResolver {
     public static Object[] getArguments(Method method, Map<String, List<String>> params) {
         List<Object> parameterInstances = new LinkedList<>();
         Parameter[] parameters = method.getParameters();
-
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(QueryParam.class)) {
                 String paramName = parameter.getAnnotation(QueryParam.class).value();
                 List<String> values = params.get(paramName);
-                Object instance = JSON.parseObject(JSON.toJSONString(values.get(0)), parameter.getType());
-                parameterInstances.add(instance);
+                if (values == null) {
+                    parameterInstances.add(null);
+                } else if (parameter.getType().isArray() || parameter.getType().equals(List.class)) {
+                    Object instance = JSON.parseObject(JSON.toJSONString(values), parameter.getType());
+                    parameterInstances.add(instance);
+                } else if (parameter.getType().equals(String.class)) {
+                    parameterInstances.add(values.get(0));
+                } else {
+                    Object instance = JSON.parseObject(values.get(0), parameter.getType());
+                    parameterInstances.add(instance);
+                }
             }
         }
 

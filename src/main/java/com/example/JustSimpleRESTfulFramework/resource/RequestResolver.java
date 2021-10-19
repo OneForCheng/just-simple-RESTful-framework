@@ -85,17 +85,18 @@ public class RequestResolver {
             boolean isRestAnnotationMethod = AnnotationResolver.isRestAnnotationMethod(method);
             if (isRestAnnotationMethod) {
                 HttpMethod httpMethod = AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method);
-                Object[] arguments = ParamResolver.getArguments(method, requestParam.getParameters());
                 if (method.isAnnotationPresent(Path.class)) {
                     String formattedPath = UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value());
                     String url =  UrlResolver.combinePath(newParentPath, formattedPath);
                     if (url.equals(requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
+                        Object[] arguments = ParamResolver.getArguments(method, requestParam.getParameters());
                         Object result = method.invoke(resourceInstance, arguments);
                         responseResult.setResult(result);
                         return;
                     }
                 }
                 if (newParentPath.equals(requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
+                    Object[] arguments = ParamResolver.getArguments(method, requestParam.getParameters());
                     Object result = method.invoke(resourceInstance, arguments);
                     responseResult.setResult(result);
                     return;

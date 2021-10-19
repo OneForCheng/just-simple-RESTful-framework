@@ -6,6 +6,8 @@ import com.example.JustSimpleRESTfulFramework.annotation.Path;
 import com.example.JustSimpleRESTfulFramework.annotation.QueryParam;
 import com.example.example.model.Item;
 
+import java.util.List;
+
 @Path("/item")
 public class ItemResource {
     @Path("content")
@@ -16,6 +18,13 @@ public class ItemResource {
     @GET
     public Item get(@QueryParam("name") String name) {
         return new Item(1, name);
+    }
+
+
+    @GET
+    @Path("list")
+    public List<String> list(@QueryParam("name") List<String> name) {
+        return name;
     }
 
     @POST
