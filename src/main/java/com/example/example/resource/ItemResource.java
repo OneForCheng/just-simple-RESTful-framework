@@ -18,15 +18,15 @@ public class ItemResource {
     }
 
     @GET
-    @Path("/{id}")
-    public String getPathId(@PathParam("id") String pathId) {
-        return pathId;
-    }
-
-    @GET
     @Path("list")
     public List<String> list(@QueryParam("name") List<String> name) {
         return name;
+    }
+
+    @GET
+    @Path("/{id}/path")
+    public String path(@PathParam("id") String pathId) {
+        return pathId;
     }
 
     @POST
