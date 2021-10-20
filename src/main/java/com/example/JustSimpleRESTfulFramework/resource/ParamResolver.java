@@ -1,6 +1,7 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.alibaba.fastjson.JSON;
+import com.example.JustSimpleRESTfulFramework.annotation.PathParam;
 import com.example.JustSimpleRESTfulFramework.annotation.QueryParam;
 import com.example.JustSimpleRESTfulFramework.exception.BadRequestException;
 
@@ -11,15 +12,18 @@ import java.util.List;
 import java.util.Map;
 
 public class ParamResolver {
-    public static Object[] getArguments(Method method, Map<String, List<String>> params) {
+    public static Object[] getArguments(Method method, Map<String, List<String>> queryParameters, Map<String, String> pathParameters) {
         List<Object> parameterInstances = new LinkedList<>();
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(QueryParam.class)) {
                 String paramName = parameter.getAnnotation(QueryParam.class).value();
-                List<String> paramValues = params.get(paramName);
+                List<String> paramValues = queryParameters.get(paramName);
                 Object parameterInstance = getParameterInstance(parameter.getType(), paramValues);
                 parameterInstances.add(parameterInstance);
+            } else if (parameter.isAnnotationPresent(PathParam.class)) {
+                String paramName = parameter.getAnnotation(PathParam.class).value();
+                parameterInstances.add(pathParameters.get(paramName));
             }
         }
 

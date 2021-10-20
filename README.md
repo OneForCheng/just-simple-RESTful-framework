@@ -25,7 +25,7 @@
 - [x] 支持对别名的依赖注入
 - [x] 解析请求参数
   - [x] 支持查询参数（QueryParam）
-  - [ ] 支持路径参数（PathParam）
+  - [x] 支持路径参数（PathParam）
   - [ ] 支持Body参数（RequestBody）
 - [ ] 用 Composite pattern 重构递归算法（面向对象的递归）
 - [ ] 添加测试（覆盖核心的解析代码以及简单的功能测试）

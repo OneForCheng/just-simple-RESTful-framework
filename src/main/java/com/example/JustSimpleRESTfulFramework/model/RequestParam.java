@@ -11,6 +11,6 @@ import java.util.Map;
 @AllArgsConstructor
 public class RequestParam {
     private String path;
-    private Map<String, List<String>> parameters;
+    private Map<String, List<String>> queryParameters;
     private HttpMethod method;
 }
