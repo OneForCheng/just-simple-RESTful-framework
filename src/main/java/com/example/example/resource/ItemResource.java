@@ -30,6 +30,12 @@ public class ItemResource {
     }
 
     @POST
+    @Path("/body")
+    public Item body(@RequestBody Item item) {
+        return item;
+    }
+
+    @POST
     public Item post() {
         return new Item(2, "test 2");
     }

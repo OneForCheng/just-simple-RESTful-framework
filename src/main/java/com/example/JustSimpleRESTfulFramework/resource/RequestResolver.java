@@ -5,6 +5,7 @@ import com.example.JustSimpleRESTfulFramework.model.RequestParam;
 import com.example.JustSimpleRESTfulFramework.model.RequestUrlAndMethod;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import com.thoughtworks.InjectContainer.InjectContainer;
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 
@@ -90,7 +91,7 @@ public class RequestResolver {
                     String url =  UrlResolver.combinePath(newParentPath, formattedPath);
                     if (UrlResolver.isMatchPath(url, requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
                         Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(url, requestParam.getPath());
-                        Object[] arguments = ParamResolver.getArguments(method, requestParam.getQueryParameters(), pathParameters);
+                        Object[] arguments = ParamResolver.getArguments(method, requestParam, pathParameters);
                         Object result = method.invoke(resourceInstance, arguments);
                         responseResult.setResult(result);
                         return true;
@@ -98,7 +99,7 @@ public class RequestResolver {
                 }
                 if (UrlResolver.isMatchPath(newParentPath, requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
                     Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(newParentPath, requestParam.getPath());
-                    Object[] arguments = ParamResolver.getArguments(method, requestParam.getQueryParameters(), pathParameters);
+                    Object[] arguments = ParamResolver.getArguments(method, requestParam, pathParameters);
                     Object result = method.invoke(resourceInstance, arguments);
                     responseResult.setResult(result);
                     return true;
@@ -107,7 +108,7 @@ public class RequestResolver {
             if (!isRestAnnotationMethod && method.isAnnotationPresent(Path.class)) {
                 String nextParentPath = UrlResolver.combinePath(newParentPath, UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value()));
                 Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(nextParentPath, requestParam.getPath());
-                Object[] arguments = ParamResolver.getArguments(method, requestParam.getQueryParameters(), pathParameters);
+                Object[] arguments = ParamResolver.getArguments(method, requestParam, pathParameters);
                 Object returnTypeInstance = method.invoke(resourceInstance, arguments);
                 boolean hasSetResult = resolveReturnResultOfResource(responseResult, requestParam, nextParentPath, method.getReturnType(), returnTypeInstance);
                 if (hasSetResult) {
@@ -141,6 +142,7 @@ public class RequestResolver {
         String path  = UrlResolver.getBaseUrl(uri);
         Map<String, List<String>> parameters = UrlResolver.getUrlQueryParameters(uri);
         HttpMethod method = request.method();
-        return new RequestParam(path, parameters, method);
+        ByteBuf content = request.content();
+        return new RequestParam(path, parameters, method, content);
     }
 }
