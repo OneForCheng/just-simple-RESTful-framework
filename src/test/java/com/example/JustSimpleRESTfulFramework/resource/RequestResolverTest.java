@@ -25,10 +25,18 @@ class RequestResolverTest {
     }
 
     @Test
-    void should_get_OK_response_when_url_of_request_is_matched() {
+    void should_get_OK_when_url_of_request_is_matched() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test");
         ResponseResult result = requestResolver.resolve(httpRequest);
         assertEquals(result.getStatus(), HttpResponseStatus.OK);
         assertEquals(result.getResult(), "test");
+    }
+
+    @Test
+    void should_get_NOT_FOUND_when_url_of_request_is_not_matched() {
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/not-match-path");
+        ResponseResult result = requestResolver.resolve(httpRequest);
+        assertEquals(result.getStatus(), HttpResponseStatus.NOT_FOUND);
+        assertEquals(result.getResult(), "Not Found");
     }
 }
