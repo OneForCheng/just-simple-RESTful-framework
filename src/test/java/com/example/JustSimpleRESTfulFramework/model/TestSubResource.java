@@ -5,7 +5,7 @@ import com.example.JustSimpleRESTfulFramework.annotation.Path;
 
 public class TestSubResource {
     @GET
-    @Path("get")
+    @Path("/get")
     public String get() {
         return "test_sub_resource";
     }

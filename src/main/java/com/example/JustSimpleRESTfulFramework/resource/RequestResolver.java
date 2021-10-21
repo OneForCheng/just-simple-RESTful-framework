@@ -96,8 +96,7 @@ public class RequestResolver {
                         responseResult.setResult(result);
                         return true;
                     }
-                }
-                if (UrlResolver.isMatchPath(newParentPath, requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
+                } else if (UrlResolver.isMatchPath(newParentPath, requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
                     Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(newParentPath, requestParam.getPath());
                     Object[] arguments = ParamResolver.getArguments(method, requestParam, pathParameters);
                     Object result = method.invoke(resourceInstance, arguments);

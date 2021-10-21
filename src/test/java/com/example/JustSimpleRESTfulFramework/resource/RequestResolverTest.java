@@ -55,4 +55,12 @@ class RequestResolverTest {
         assertEquals(result.getStatus(), HttpResponseStatus.OK);
         assertEquals(result.getResult(), "test_sub_resource");
     }
+
+    @Test
+    void should_get_string_query_param_when_url_of_request_is_matched_and_with_query_param() {
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/string-query-param?name=hello");
+        ResponseResult result = requestResolver.resolve(httpRequest);
+        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        assertEquals(result.getResult(), "hello");
+    }
 }

@@ -3,6 +3,7 @@ package com.example.JustSimpleRESTfulFramework.model;
 import com.example.JustSimpleRESTfulFramework.annotation.GET;
 import com.example.JustSimpleRESTfulFramework.annotation.POST;
 import com.example.JustSimpleRESTfulFramework.annotation.Path;
+import com.example.JustSimpleRESTfulFramework.annotation.QueryParam;
 
 @Path("/test")
 public class TestResource {
@@ -19,5 +20,11 @@ public class TestResource {
     @Path("/sub-resource")
     public TestSubResource SubResource() {
         return new TestSubResource();
+    }
+
+    @GET
+    @Path("/string-query-param")
+    public String get(@QueryParam("name") String name) {
+        return name;
     }
 }
