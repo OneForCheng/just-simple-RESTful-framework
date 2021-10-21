@@ -71,4 +71,16 @@ class RequestResolverTest {
         assertEquals(result.getStatus(), HttpResponseStatus.OK);
         assertEquals(result.getResult(), 10);
     }
+
+    @Test
+    void should_get_array_query_param_when_url_of_request_is_matched_and_with_query_param() {
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/array-query-param?tags=1&tags=abc&tags=hello");
+        ResponseResult result = requestResolver.resolve(httpRequest);
+        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        String[] tags = (String[])result.getResult();
+        assertEquals(tags.length, 3);
+        assertEquals(tags[0], "1");
+        assertEquals(tags[1], "abc");
+        assertEquals(tags[2], "hello");
+    }
 }

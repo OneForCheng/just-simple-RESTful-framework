@@ -33,4 +33,10 @@ public class TestResource {
     public Integer get(@QueryParam("count") Integer count) {
         return count;
     }
+
+    @GET
+    @Path("/array-query-param")
+    public String[] get(@QueryParam("tags") String[] tags) {
+        return tags;
+    }
 }
