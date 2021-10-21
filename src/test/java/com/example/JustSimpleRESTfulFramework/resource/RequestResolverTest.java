@@ -1,7 +1,11 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.example.JustSimpleRESTfulFramework.TestApp;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
+import com.example.JustSimpleRESTfulFramework.model.TestRequestBody;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
@@ -104,5 +108,18 @@ class RequestResolverTest {
         ResponseResult result = requestResolver.resolve(httpRequest);
         assertEquals(result.getStatus(), HttpResponseStatus.OK);
         assertEquals(result.getResult(), "123");
+    }
+
+    @Test
+    void should_get_request_body_when_url_of_request_is_matched_and_with_request_body() {
+        TestRequestBody body = new TestRequestBody("123", "test", 10.5);
+        byte[] bytes = JSON.toJSONBytes(body, SerializerFeature.EMPTY);
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.POST, "/test/request-body", Unpooled.wrappedBuffer(bytes));
+        ResponseResult result = requestResolver.resolve(httpRequest);
+        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        TestRequestBody data = (TestRequestBody)result.getResult();
+        assertEquals(data.getId(), body.getId());
+        assertEquals(data.getName(), body.getName());
+        assertEquals(data.getAge(), body.getAge(), 0.0001);
     }
 }

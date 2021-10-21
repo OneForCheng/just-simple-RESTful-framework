@@ -50,4 +50,10 @@ public class TestResource {
     public String getPathId(@PathParam("id") String id) {
         return id;
     }
+
+    @POST
+    @Path("/request-body")
+    public TestRequestBody getRequestBody(@RequestBody TestRequestBody body) {
+        return body;
+    }
 }
