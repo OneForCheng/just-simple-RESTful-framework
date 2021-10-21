@@ -1,9 +1,6 @@
 package com.example.JustSimpleRESTfulFramework.model;
 
-import com.example.JustSimpleRESTfulFramework.annotation.GET;
-import com.example.JustSimpleRESTfulFramework.annotation.POST;
-import com.example.JustSimpleRESTfulFramework.annotation.Path;
-import com.example.JustSimpleRESTfulFramework.annotation.QueryParam;
+import com.example.JustSimpleRESTfulFramework.annotation.*;
 
 import java.util.List;
 
@@ -46,5 +43,11 @@ public class TestResource {
     @Path("/list-query-param")
     public List<String> get(@QueryParam("tags") List<String> tags) {
         return tags;
+    }
+
+    @GET
+    @Path("/path-param/{id}")
+    public String getPathId(@PathParam("id") String id) {
+        return id;
     }
 }

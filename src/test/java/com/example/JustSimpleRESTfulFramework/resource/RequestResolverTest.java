@@ -97,4 +97,12 @@ class RequestResolverTest {
         assertEquals(tags.get(1), "abc");
         assertEquals(tags.get(2), "hello");
     }
+
+    @Test
+    void should_get_path_param_when_url_of_request_is_matched_and_with_path_param() {
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/path-param/123?id=456");
+        ResponseResult result = requestResolver.resolve(httpRequest);
+        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        assertEquals(result.getResult(), "123");
+    }
 }
