@@ -15,4 +15,9 @@ public class TestResource {
     public String post() {
         return "test_post";
     }
+
+    @Path("/sub-resource")
+    public TestSubResource SubResource() {
+        return new TestSubResource();
+    }
 }

@@ -25,6 +25,14 @@ class RequestResolverTest {
     }
 
     @Test
+    void should_get_NOT_FOUND_when_url_of_request_is_not_matched() {
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/not-match-path");
+        ResponseResult result = requestResolver.resolve(httpRequest);
+        assertEquals(result.getStatus(), HttpResponseStatus.NOT_FOUND);
+        assertEquals(result.getResult(), "Not Found");
+    }
+
+    @Test
     void should_get_OK_when_url_of_request_is_matched_and_http_method_is_GET() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test");
         ResponseResult result = requestResolver.resolve(httpRequest);
@@ -33,7 +41,7 @@ class RequestResolverTest {
     }
 
     @Test
-    void should_get_OK_when_url_of_request_is_matched_and__http_method_is_POST() {
+    void should_get_OK_when_url_of_request_is_matched_and_http_method_is_POST() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.POST, "/test");
         ResponseResult result = requestResolver.resolve(httpRequest);
         assertEquals(result.getStatus(), HttpResponseStatus.OK);
@@ -41,10 +49,10 @@ class RequestResolverTest {
     }
 
     @Test
-    void should_get_NOT_FOUND_when_url_of_request_is_not_matched() {
-        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/not-match-path");
+    void should_get_OK_when_url_of_request_is_matched_with_sub_resource() {
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/sub-resource/get");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.NOT_FOUND);
-        assertEquals(result.getResult(), "Not Found");
+        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        assertEquals(result.getResult(), "test_sub_resource");
     }
 }
