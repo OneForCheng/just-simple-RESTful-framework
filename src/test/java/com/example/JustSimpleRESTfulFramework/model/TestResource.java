@@ -5,6 +5,8 @@ import com.example.JustSimpleRESTfulFramework.annotation.POST;
 import com.example.JustSimpleRESTfulFramework.annotation.Path;
 import com.example.JustSimpleRESTfulFramework.annotation.QueryParam;
 
+import java.util.List;
+
 @Path("/test")
 public class TestResource {
     @GET
@@ -37,6 +39,12 @@ public class TestResource {
     @GET
     @Path("/array-query-param")
     public String[] get(@QueryParam("tags") String[] tags) {
+        return tags;
+    }
+
+    @GET
+    @Path("/list-query-param")
+    public List<String> get(@QueryParam("tags") List<String> tags) {
         return tags;
     }
 }

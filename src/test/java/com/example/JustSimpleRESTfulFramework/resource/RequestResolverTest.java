@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.List;
+
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -82,5 +84,17 @@ class RequestResolverTest {
         assertEquals(tags[0], "1");
         assertEquals(tags[1], "abc");
         assertEquals(tags[2], "hello");
+    }
+
+    @Test
+    void should_get_list_query_param_when_url_of_request_is_matched_and_with_query_param() {
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/list-query-param?tags=1&tags=abc&tags=hello");
+        ResponseResult result = requestResolver.resolve(httpRequest);
+        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        List<String> tags = (List<String>)result.getResult();
+        assertEquals(tags.size(), 3);
+        assertEquals(tags.get(0), "1");
+        assertEquals(tags.get(1), "abc");
+        assertEquals(tags.get(2), "hello");
     }
 }
