@@ -25,11 +25,19 @@ class RequestResolverTest {
     }
 
     @Test
-    void should_get_OK_when_url_of_request_is_matched() {
+    void should_get_OK_when_url_of_request_is_matched_and_http_method_is_GET() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test");
         ResponseResult result = requestResolver.resolve(httpRequest);
         assertEquals(result.getStatus(), HttpResponseStatus.OK);
-        assertEquals(result.getResult(), "test");
+        assertEquals(result.getResult(), "test_get");
+    }
+
+    @Test
+    void should_get_OK_when_url_of_request_is_matched_and__http_method_is_POST() {
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.POST, "/test");
+        ResponseResult result = requestResolver.resolve(httpRequest);
+        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        assertEquals(result.getResult(), "test_post");
     }
 
     @Test
