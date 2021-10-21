@@ -18,4 +18,8 @@ public final class RESTApplication {
     public void bootstrap(Class<?> bootstrapClass) {
         httpServer.run(new RequestResolver(bootstrapClass));
     }
+
+    public void close() {
+        httpServer.close();
+    }
 }

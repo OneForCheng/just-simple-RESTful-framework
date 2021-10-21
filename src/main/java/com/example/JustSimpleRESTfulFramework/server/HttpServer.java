@@ -17,14 +17,14 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 public final class HttpServer {
     private final BaseHttpServerConfig httpServerConfig;
+    private final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
     public HttpServer(BaseHttpServerConfig httpServerConfig) {
         this.httpServerConfig = httpServerConfig;
     }
 
     public void run(RequestResolver requestResolver) {
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
         SslContext sslContext = getSslContext();
 
         try {
@@ -36,13 +36,14 @@ public final class HttpServer {
                     .childHandler(new HttpServerHandler(httpServerConfig, sslContext, requestResolver));
             Channel channel = serverBootstrap.bind(httpServerConfig.getPort()).sync().channel();
             System.out.printf("Open your web browser and navigate to %s://127.0.0.1:%s%n", httpServerConfig.getProtocol(), httpServerConfig.getPort());
-            channel.closeFuture().sync();
         } catch (InterruptedException e) {
             throw new HttpServerException("bootstrap server failed.", e);
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
         }
+    }
+
+    public void close() {
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
     }
 
     private SslContext getSslContext() {
