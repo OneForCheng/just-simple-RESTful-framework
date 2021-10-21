@@ -19,6 +19,9 @@ dependencies {
 	implementation 'com.alibaba:fastjson:1.2.73'
 
 	implementation files("$projectDir/libs/InjectContainer-0.0.1.jar")
+
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 test {
