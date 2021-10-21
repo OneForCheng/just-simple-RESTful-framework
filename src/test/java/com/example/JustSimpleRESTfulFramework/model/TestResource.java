@@ -27,4 +27,10 @@ public class TestResource {
     public String get(@QueryParam("name") String name) {
         return name;
     }
+
+    @GET
+    @Path("/integer-query-param")
+    public Integer get(@QueryParam("count") Integer count) {
+        return count;
+    }
 }

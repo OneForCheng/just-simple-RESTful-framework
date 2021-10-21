@@ -63,4 +63,12 @@ class RequestResolverTest {
         assertEquals(result.getStatus(), HttpResponseStatus.OK);
         assertEquals(result.getResult(), "hello");
     }
+
+    @Test
+    void should_get_integer_query_param_when_url_of_request_is_matched_and_with_query_param() {
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/integer-query-param?count=10");
+        ResponseResult result = requestResolver.resolve(httpRequest);
+        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        assertEquals(result.getResult(), 10);
+    }
 }
