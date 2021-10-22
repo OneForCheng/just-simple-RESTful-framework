@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ParamResolver {
-    public static Object[] getArgumentInstances(Method method, RequestParam requestParam, Map<String, String> pathParameters) {
+    public static Object[] getParameterInstances(Method method, RequestParam requestParam, Map<String, String> pathParameters) {
         List<Object> parameterInstances = new LinkedList<>();
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
