@@ -63,7 +63,7 @@ public class RequestResolver {
         });
     }
 
-    private ResponseResult resolveReturnResultOfResource(RequestEntity requestEntity, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
+    private ResponseResult resolveResponseResultOfResource(RequestEntity requestEntity, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
         String newParentPath = getCurrentResourcePath(resource, parentPath);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         for (Method method : publicMethods) {
@@ -91,7 +91,7 @@ public class RequestResolver {
                 Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(nextParentPath, requestEntity.getPath());
                 Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
                 Object returnTypeInstance = method.invoke(resourceInstance, arguments);
-                ResponseResult responseResult = resolveReturnResultOfResource(requestEntity, nextParentPath, method.getReturnType(), returnTypeInstance);
+                ResponseResult responseResult = resolveResponseResultOfResource(requestEntity, nextParentPath, method.getReturnType(), returnTypeInstance);
                 if (responseResult != null) {
                     return responseResult;
                 }
@@ -112,7 +112,7 @@ public class RequestResolver {
             RequestEntity requestEntity = RequestEntity.of(request);
             for (Map.Entry<Class<?>, List<ResourceUrlAndMethod>> resource : resources.entrySet()) {
                 if (resource.getValue().stream().anyMatch(item -> UrlResolver.isMatchPath(item.getUrl(), requestEntity.getPath()) && item.getMethod().equals(requestEntity.getMethod()))) {
-                    return resolveReturnResultOfResource(requestEntity, UrlResolver.PATH_SEPARATOR, resource.getKey(), injectContainer.getInstance(resource.getKey()));
+                    return resolveResponseResultOfResource(requestEntity, UrlResolver.PATH_SEPARATOR, resource.getKey(), injectContainer.getInstance(resource.getKey()));
                 }
             }
         } catch (Exception e) {
