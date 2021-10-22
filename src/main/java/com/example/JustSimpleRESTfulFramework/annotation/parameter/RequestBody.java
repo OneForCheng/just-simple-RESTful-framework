@@ -1,4 +1,4 @@
-package com.example.JustSimpleRESTfulFramework.annotation;
+package com.example.JustSimpleRESTfulFramework.annotation.parameter;
 
 import java.lang.annotation.*;
 

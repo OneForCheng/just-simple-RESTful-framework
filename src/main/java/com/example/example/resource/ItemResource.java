@@ -1,6 +1,11 @@
 package com.example.example.resource;
 
-import com.example.JustSimpleRESTfulFramework.annotation.*;
+import com.example.JustSimpleRESTfulFramework.annotation.method.GET;
+import com.example.JustSimpleRESTfulFramework.annotation.method.POST;
+import com.example.JustSimpleRESTfulFramework.annotation.method.Path;
+import com.example.JustSimpleRESTfulFramework.annotation.parameter.PathParam;
+import com.example.JustSimpleRESTfulFramework.annotation.parameter.QueryParam;
+import com.example.JustSimpleRESTfulFramework.annotation.parameter.RequestBody;
 import com.example.example.model.Item;
 
 import java.util.List;

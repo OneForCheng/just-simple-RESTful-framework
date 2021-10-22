@@ -1,6 +1,10 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.example.JustSimpleRESTfulFramework.annotation.*;
+import com.example.JustSimpleRESTfulFramework.annotation.method.DELETE;
+import com.example.JustSimpleRESTfulFramework.annotation.method.GET;
+import com.example.JustSimpleRESTfulFramework.annotation.method.POST;
+import com.example.JustSimpleRESTfulFramework.annotation.method.PUT;
 import io.netty.handler.codec.http.HttpMethod;
 
 import java.lang.reflect.Method;

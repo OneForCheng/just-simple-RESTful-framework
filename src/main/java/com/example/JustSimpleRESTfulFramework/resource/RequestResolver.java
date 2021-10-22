@@ -1,6 +1,6 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
-import com.example.JustSimpleRESTfulFramework.annotation.*;
+import com.example.JustSimpleRESTfulFramework.annotation.method.Path;
 import com.example.JustSimpleRESTfulFramework.model.RequestParam;
 import com.example.JustSimpleRESTfulFramework.model.RequestUrlAndMethod;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;

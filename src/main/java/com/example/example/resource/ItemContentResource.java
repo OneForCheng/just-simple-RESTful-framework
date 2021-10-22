@@ -1,6 +1,6 @@
 package com.example.example.resource;
 
-import com.example.JustSimpleRESTfulFramework.annotation.GET;
+import com.example.JustSimpleRESTfulFramework.annotation.method.GET;
 import com.example.example.model.ItemContent;
 
 public class ItemContentResource {

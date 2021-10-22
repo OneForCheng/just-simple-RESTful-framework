@@ -1,9 +1,9 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.alibaba.fastjson.JSON;
-import com.example.JustSimpleRESTfulFramework.annotation.PathParam;
-import com.example.JustSimpleRESTfulFramework.annotation.QueryParam;
-import com.example.JustSimpleRESTfulFramework.annotation.RequestBody;
+import com.example.JustSimpleRESTfulFramework.annotation.parameter.PathParam;
+import com.example.JustSimpleRESTfulFramework.annotation.parameter.QueryParam;
+import com.example.JustSimpleRESTfulFramework.annotation.parameter.RequestBody;
 import com.example.JustSimpleRESTfulFramework.exception.BadRequestException;
 import com.example.JustSimpleRESTfulFramework.model.RequestParam;
 import io.netty.util.CharsetUtil;
