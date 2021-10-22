@@ -5,7 +5,6 @@ import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
 import com.example.JustSimpleRESTfulFramework.model.ResourceUrlAndMethod;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import com.thoughtworks.InjectContainer.InjectContainer;
-import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 
@@ -28,7 +27,8 @@ public class RequestResolver {
         Map<Class<?>, List<ResourceUrlAndMethod>> resources = Collections.synchronizedMap(new HashMap<>());
         Class<?>[] routeResources = AnnotationResolver.getAnnotatedRouteResources(bootstrapClass);
         Arrays.stream(routeResources).forEach(resource -> {
-            List<ResourceUrlAndMethod> urls = getAllUrlAndMethodsOfResource(resource);
+            List<ResourceUrlAndMethod> urls = new LinkedList<>();
+            resolveUrlAndMethodOfResource(urls, UrlResolver.PATH_SEPARATOR, resource);
             resources.put(resource, urls);
         });
         return resources;
@@ -39,12 +39,6 @@ public class RequestResolver {
         Class<?>[] classQualifiers = AnnotationResolver.getAnnotatedClassQualifiers(bootstrapClass);
         Arrays.stream(classQualifiers).forEach(injectContainer::registerQualifiedClass);
         return injectContainer;
-    }
-
-    private List<ResourceUrlAndMethod> getAllUrlAndMethodsOfResource(Class<?> resource) {
-        List<ResourceUrlAndMethod> urls = new LinkedList<>();
-        resolveUrlAndMethodOfResource(urls, UrlResolver.PATH_SEPARATOR, resource);
-        return urls;
     }
 
     private void resolveUrlAndMethodOfResource(List<ResourceUrlAndMethod> urls, String parentPath, Class<?> resource) {
