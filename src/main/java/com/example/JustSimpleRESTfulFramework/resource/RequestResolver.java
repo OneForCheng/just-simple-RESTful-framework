@@ -63,7 +63,7 @@ public class RequestResolver {
         });
     }
 
-    private boolean resolveReturnResultOfResource(ResponseResult responseResult, RequestEntity requestEntity, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
+    private ResponseResult resolveReturnResultOfResource(RequestEntity requestEntity, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
         String newParentPath = getCurrentResourcePath(resource, parentPath);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         for (Method method : publicMethods) {
@@ -77,15 +77,13 @@ public class RequestResolver {
                         Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(url, requestEntity.getPath());
                         Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
                         Object result = method.invoke(resourceInstance, arguments);
-                        responseResult.setResult(result);
-                        return true;
+                        return new ResponseResult(OK, result);
                     }
                 } else if (UrlResolver.isMatchPath(newParentPath, requestEntity.getPath()) && httpMethod.equals(requestEntity.getMethod())) {
                     Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(newParentPath, requestEntity.getPath());
                     Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
                     Object result = method.invoke(resourceInstance, arguments);
-                    responseResult.setResult(result);
-                    return true;
+                    return new ResponseResult(OK, result);
                 }
             }
             if (!isRestAnnotationMethod && method.isAnnotationPresent(Path.class)) {
@@ -93,13 +91,13 @@ public class RequestResolver {
                 Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(nextParentPath, requestEntity.getPath());
                 Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
                 Object returnTypeInstance = method.invoke(resourceInstance, arguments);
-                boolean hasSetResult = resolveReturnResultOfResource(responseResult, requestEntity, nextParentPath, method.getReturnType(), returnTypeInstance);
-                if (hasSetResult) {
-                    return true;
+                ResponseResult responseResult = resolveReturnResultOfResource(requestEntity, nextParentPath, method.getReturnType(), returnTypeInstance);
+                if (responseResult != null) {
+                    return responseResult;
                 }
             }
         }
-        return false;
+        return null;
     }
 
     private String getCurrentResourcePath(Class<?> resource, String parentPath) {
@@ -114,11 +112,7 @@ public class RequestResolver {
             RequestEntity requestEntity = RequestEntity.of(request);
             for (Map.Entry<Class<?>, List<ResourceUrlAndMethod>> resource : resources.entrySet()) {
                 if (resource.getValue().stream().anyMatch(item -> UrlResolver.isMatchPath(item.getUrl(), requestEntity.getPath()) && item.getMethod().equals(requestEntity.getMethod()))) {
-                    ResponseResult responseResult = new ResponseResult(OK, null);
-                    Class<?> clazz = resource.getKey();
-                    Object resourceInstance = injectContainer.getInstance(clazz);
-                    resolveReturnResultOfResource(responseResult, requestEntity, UrlResolver.PATH_SEPARATOR, clazz, resourceInstance);
-                    return responseResult;
+                    return resolveReturnResultOfResource(requestEntity, UrlResolver.PATH_SEPARATOR, resource.getKey(), injectContainer.getInstance(resource.getKey()));
                 }
             }
         } catch (Exception e) {
