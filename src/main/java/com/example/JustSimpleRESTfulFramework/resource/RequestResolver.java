@@ -1,7 +1,7 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.example.JustSimpleRESTfulFramework.annotation.method.Path;
-import com.example.JustSimpleRESTfulFramework.model.RequestParam;
+import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
 import com.example.JustSimpleRESTfulFramework.model.ResourceUrlAndMethod;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import com.thoughtworks.InjectContainer.InjectContainer;
@@ -69,7 +69,7 @@ public class RequestResolver {
         });
     }
 
-    private boolean resolveReturnResultOfResource(ResponseResult responseResult, RequestParam requestParam, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
+    private boolean resolveReturnResultOfResource(ResponseResult responseResult, RequestEntity requestEntity, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
         String newParentPath = getCurrentResourcePath(resource, parentPath);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         for (Method method : publicMethods) {
@@ -79,16 +79,16 @@ public class RequestResolver {
                 if (method.isAnnotationPresent(Path.class)) {
                     String formattedPath = UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value());
                     String url =  UrlResolver.combinePath(newParentPath, formattedPath);
-                    if (UrlResolver.isMatchPath(url, requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
-                        Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(url, requestParam.getPath());
-                        Object[] arguments = ParamResolver.getParameterInstances(method, requestParam, pathParameters);
+                    if (UrlResolver.isMatchPath(url, requestEntity.getPath()) && httpMethod.equals(requestEntity.getMethod())) {
+                        Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(url, requestEntity.getPath());
+                        Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
                         Object result = method.invoke(resourceInstance, arguments);
                         responseResult.setResult(result);
                         return true;
                     }
-                } else if (UrlResolver.isMatchPath(newParentPath, requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
-                    Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(newParentPath, requestParam.getPath());
-                    Object[] arguments = ParamResolver.getParameterInstances(method, requestParam, pathParameters);
+                } else if (UrlResolver.isMatchPath(newParentPath, requestEntity.getPath()) && httpMethod.equals(requestEntity.getMethod())) {
+                    Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(newParentPath, requestEntity.getPath());
+                    Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
                     Object result = method.invoke(resourceInstance, arguments);
                     responseResult.setResult(result);
                     return true;
@@ -96,10 +96,10 @@ public class RequestResolver {
             }
             if (!isRestAnnotationMethod && method.isAnnotationPresent(Path.class)) {
                 String nextParentPath = UrlResolver.combinePath(newParentPath, UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value()));
-                Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(nextParentPath, requestParam.getPath());
-                Object[] arguments = ParamResolver.getParameterInstances(method, requestParam, pathParameters);
+                Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(nextParentPath, requestEntity.getPath());
+                Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
                 Object returnTypeInstance = method.invoke(resourceInstance, arguments);
-                boolean hasSetResult = resolveReturnResultOfResource(responseResult, requestParam, nextParentPath, method.getReturnType(), returnTypeInstance);
+                boolean hasSetResult = resolveReturnResultOfResource(responseResult, requestEntity, nextParentPath, method.getReturnType(), returnTypeInstance);
                 if (hasSetResult) {
                     return true;
                 }
@@ -117,13 +117,13 @@ public class RequestResolver {
 
     public ResponseResult resolve(FullHttpRequest request) {
         try {
-            RequestParam requestParam = getRequestParam(request);
+            RequestEntity requestEntity = RequestEntity.of(request);
             for (Map.Entry<Class<?>, List<ResourceUrlAndMethod>> resource : resources.entrySet()) {
-                if (resource.getValue().stream().anyMatch(item -> UrlResolver.isMatchPath(item.getUrl(), requestParam.getPath()) && item.getMethod().equals(requestParam.getMethod()))) {
+                if (resource.getValue().stream().anyMatch(item -> UrlResolver.isMatchPath(item.getUrl(), requestEntity.getPath()) && item.getMethod().equals(requestEntity.getMethod()))) {
                     ResponseResult responseResult = new ResponseResult(OK, null);
                     Class<?> clazz = resource.getKey();
                     Object resourceInstance = injectContainer.getInstance(clazz);
-                    resolveReturnResultOfResource(responseResult, requestParam, UrlResolver.PATH_SEPARATOR, clazz, resourceInstance);
+                    resolveReturnResultOfResource(responseResult, requestEntity, UrlResolver.PATH_SEPARATOR, clazz, resourceInstance);
                     return responseResult;
                 }
             }
@@ -131,14 +131,5 @@ public class RequestResolver {
             return new ResponseResult(INTERNAL_SERVER_ERROR, e);
         }
         return new ResponseResult(NOT_FOUND, NOT_FOUND.reasonPhrase());
-    }
-
-    private RequestParam getRequestParam(FullHttpRequest request) {
-        String uri = request.uri();
-        String path  = UrlResolver.getBaseUrl(uri);
-        Map<String, List<String>> parameters = UrlResolver.getUrlQueryParameters(uri);
-        HttpMethod method = request.method();
-        ByteBuf content = request.content();
-        return new RequestParam(path, parameters, method, content);
     }
 }

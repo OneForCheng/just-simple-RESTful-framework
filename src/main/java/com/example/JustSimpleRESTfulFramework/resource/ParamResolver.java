@@ -5,7 +5,7 @@ import com.example.JustSimpleRESTfulFramework.annotation.parameter.PathParam;
 import com.example.JustSimpleRESTfulFramework.annotation.parameter.QueryParam;
 import com.example.JustSimpleRESTfulFramework.annotation.parameter.RequestBody;
 import com.example.JustSimpleRESTfulFramework.exception.BadRequestException;
-import com.example.JustSimpleRESTfulFramework.model.RequestParam;
+import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
 import io.netty.util.CharsetUtil;
 
 import java.lang.reflect.Method;
@@ -15,20 +15,20 @@ import java.util.List;
 import java.util.Map;
 
 public class ParamResolver {
-    public static Object[] getParameterInstances(Method method, RequestParam requestParam, Map<String, String> pathParameters) {
+    public static Object[] getParameterInstances(Method method, RequestEntity requestEntity, Map<String, String> pathParameters) {
         List<Object> parameterInstances = new LinkedList<>();
         Parameter[] parameters = method.getParameters();
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(QueryParam.class)) {
                 String paramName = parameter.getAnnotation(QueryParam.class).value();
-                List<String> paramValues = requestParam.getQueryParameters().get(paramName);
+                List<String> paramValues = requestEntity.getQueryParameters().get(paramName);
                 Object parameterInstance = getQueryParameterInstance(parameter.getType(), paramValues);
                 parameterInstances.add(parameterInstance);
             } else if (parameter.isAnnotationPresent(PathParam.class)) {
                 String paramName = parameter.getAnnotation(PathParam.class).value();
                 parameterInstances.add(pathParameters.get(paramName));
             } else if (parameter.isAnnotationPresent(RequestBody.class)) {
-                String body = requestParam.getBody().toString(CharsetUtil.UTF_8);
+                String body = requestEntity.getBody().toString(CharsetUtil.UTF_8);
                 parameterInstances.add(JSON.parseObject(body, parameter.getType()));
             }
         }
