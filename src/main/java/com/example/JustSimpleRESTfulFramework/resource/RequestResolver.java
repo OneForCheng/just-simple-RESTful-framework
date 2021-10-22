@@ -48,12 +48,7 @@ public class RequestResolver {
     }
 
     private void resolveUrlAndMethodOfResource(List<RequestUrlAndMethod> urls, String parentPath, Class<?> resource) {
-        String newParentPath;
-        if (resource.isAnnotationPresent(Path.class)) {
-            newParentPath = UrlResolver.combinePath(parentPath, UrlResolver.getFormattedPath(resource.getAnnotation(Path.class).value()));
-        } else {
-            newParentPath = parentPath;
-        }
+        String newParentPath = getCurrentResourcePath(resource, parentPath);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         publicMethods.forEach(method -> {
             boolean isRestAnnotationMethod = AnnotationResolver.isRestAnnotationMethod(method);
@@ -75,12 +70,7 @@ public class RequestResolver {
     }
 
     private boolean resolveReturnResultOfResource(ResponseResult responseResult, RequestParam requestParam, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
-        String newParentPath;
-        if (resource.isAnnotationPresent(Path.class)) {
-            newParentPath = UrlResolver.combinePath(parentPath, UrlResolver.getFormattedPath(resource.getAnnotation(Path.class).value()));
-        } else {
-            newParentPath = parentPath;
-        }
+        String newParentPath = getCurrentResourcePath(resource, parentPath);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         for (Method method : publicMethods) {
             boolean isRestAnnotationMethod = AnnotationResolver.isRestAnnotationMethod(method);
@@ -116,6 +106,13 @@ public class RequestResolver {
             }
         }
         return false;
+    }
+
+    private String getCurrentResourcePath(Class<?> resource, String parentPath) {
+        if (resource.isAnnotationPresent(Path.class)) {
+            return UrlResolver.combinePath(parentPath, UrlResolver.getFormattedPath(resource.getAnnotation(Path.class).value()));
+        }
+        return parentPath;
     }
 
     public ResponseResult resolve(FullHttpRequest request) {
