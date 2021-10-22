@@ -2,7 +2,7 @@ package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.example.JustSimpleRESTfulFramework.annotation.method.Path;
 import com.example.JustSimpleRESTfulFramework.model.RequestParam;
-import com.example.JustSimpleRESTfulFramework.model.RequestUrlAndMethod;
+import com.example.JustSimpleRESTfulFramework.model.ResourceUrlAndMethod;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import com.thoughtworks.InjectContainer.InjectContainer;
 import io.netty.buffer.ByteBuf;
@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class RequestResolver {
-    private final Map<Class<?>, List<RequestUrlAndMethod>> resources;
+    private final Map<Class<?>, List<ResourceUrlAndMethod>> resources;
     private final InjectContainer injectContainer;
 
     public RequestResolver(Class<?> bootstrapClass) {
@@ -24,11 +24,11 @@ public class RequestResolver {
         injectContainer = getInjectContainer(bootstrapClass);
     }
 
-    private Map<Class<?>, List<RequestUrlAndMethod>> getResources(Class<?> bootstrapClass) {
-        Map<Class<?>, List<RequestUrlAndMethod>> resources = Collections.synchronizedMap(new HashMap<>());
+    private Map<Class<?>, List<ResourceUrlAndMethod>> getResources(Class<?> bootstrapClass) {
+        Map<Class<?>, List<ResourceUrlAndMethod>> resources = Collections.synchronizedMap(new HashMap<>());
         Class<?>[] routeResources = AnnotationResolver.getAnnotatedRouteResources(bootstrapClass);
         Arrays.stream(routeResources).forEach(resource -> {
-            List<RequestUrlAndMethod> urls = getAllUrlAndMethodsOfResource(resource);
+            List<ResourceUrlAndMethod> urls = getAllUrlAndMethodsOfResource(resource);
             resources.put(resource, urls);
         });
         return resources;
@@ -41,13 +41,13 @@ public class RequestResolver {
         return injectContainer;
     }
 
-    private List<RequestUrlAndMethod> getAllUrlAndMethodsOfResource(Class<?> resource) {
-        List<RequestUrlAndMethod> urls = new LinkedList<>();
+    private List<ResourceUrlAndMethod> getAllUrlAndMethodsOfResource(Class<?> resource) {
+        List<ResourceUrlAndMethod> urls = new LinkedList<>();
         resolveUrlAndMethodOfResource(urls, UrlResolver.PATH_SEPARATOR, resource);
         return urls;
     }
 
-    private void resolveUrlAndMethodOfResource(List<RequestUrlAndMethod> urls, String parentPath, Class<?> resource) {
+    private void resolveUrlAndMethodOfResource(List<ResourceUrlAndMethod> urls, String parentPath, Class<?> resource) {
         String newParentPath = getCurrentResourcePath(resource, parentPath);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         publicMethods.forEach(method -> {
@@ -57,9 +57,9 @@ public class RequestResolver {
                 if (method.isAnnotationPresent(Path.class)) {
                     String formattedPath = UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value());
                     String url =  UrlResolver.combinePath(newParentPath, formattedPath);
-                    urls.add(new RequestUrlAndMethod(url, httpMethod));
+                    urls.add(new ResourceUrlAndMethod(url, httpMethod));
                 } else {
-                    urls.add(new RequestUrlAndMethod(newParentPath, httpMethod));
+                    urls.add(new ResourceUrlAndMethod(newParentPath, httpMethod));
                 }
             }
             if (!isRestAnnotationMethod && method.isAnnotationPresent(Path.class)) {
@@ -118,7 +118,7 @@ public class RequestResolver {
     public ResponseResult resolve(FullHttpRequest request) {
         try {
             RequestParam requestParam = getRequestParam(request);
-            for (Map.Entry<Class<?>, List<RequestUrlAndMethod>> resource : resources.entrySet()) {
+            for (Map.Entry<Class<?>, List<ResourceUrlAndMethod>> resource : resources.entrySet()) {
                 if (resource.getValue().stream().anyMatch(item -> UrlResolver.isMatchPath(item.getUrl(), requestParam.getPath()) && item.getMethod().equals(requestParam.getMethod()))) {
                     ResponseResult responseResult = new ResponseResult(OK, null);
                     Class<?> clazz = resource.getKey();

@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class RequestUrlAndMethod {
+public class ResourceUrlAndMethod {
     private String url;
     private HttpMethod method;
 }
