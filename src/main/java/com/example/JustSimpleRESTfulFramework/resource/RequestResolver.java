@@ -91,14 +91,14 @@ public class RequestResolver {
                     String url =  UrlResolver.combinePath(newParentPath, formattedPath);
                     if (UrlResolver.isMatchPath(url, requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
                         Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(url, requestParam.getPath());
-                        Object[] arguments = ParamResolver.getArguments(method, requestParam, pathParameters);
+                        Object[] arguments = ParamResolver.getArgumentInstances(method, requestParam, pathParameters);
                         Object result = method.invoke(resourceInstance, arguments);
                         responseResult.setResult(result);
                         return true;
                     }
                 } else if (UrlResolver.isMatchPath(newParentPath, requestParam.getPath()) && httpMethod.equals(requestParam.getMethod())) {
                     Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(newParentPath, requestParam.getPath());
-                    Object[] arguments = ParamResolver.getArguments(method, requestParam, pathParameters);
+                    Object[] arguments = ParamResolver.getArgumentInstances(method, requestParam, pathParameters);
                     Object result = method.invoke(resourceInstance, arguments);
                     responseResult.setResult(result);
                     return true;
@@ -107,7 +107,7 @@ public class RequestResolver {
             if (!isRestAnnotationMethod && method.isAnnotationPresent(Path.class)) {
                 String nextParentPath = UrlResolver.combinePath(newParentPath, UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value()));
                 Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(nextParentPath, requestParam.getPath());
-                Object[] arguments = ParamResolver.getArguments(method, requestParam, pathParameters);
+                Object[] arguments = ParamResolver.getArgumentInstances(method, requestParam, pathParameters);
                 Object returnTypeInstance = method.invoke(resourceInstance, arguments);
                 boolean hasSetResult = resolveReturnResultOfResource(responseResult, requestParam, nextParentPath, method.getReturnType(), returnTypeInstance);
                 if (hasSetResult) {
