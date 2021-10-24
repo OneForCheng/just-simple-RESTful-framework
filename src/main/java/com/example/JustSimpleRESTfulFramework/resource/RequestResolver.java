@@ -10,6 +10,7 @@ import io.netty.handler.codec.http.HttpMethod;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -42,62 +43,37 @@ public class RequestResolver {
     }
 
     private void resolveUrlAndMethodOfResource(List<ResourceUrlAndMethod> urls, String parentPath, Class<?> resource) {
-        String newParentPath = getCurrentResourcePath(resource, parentPath);
+        String resourceFullPath = getFullResourcePath(resource, parentPath);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         publicMethods.forEach(method -> {
-            boolean isRestAnnotationMethod = AnnotationResolver.isRestAnnotationMethod(method);
-            if (isRestAnnotationMethod) {
-                HttpMethod httpMethod = AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method);
-                if (method.isAnnotationPresent(Path.class)) {
-                    String formattedPath = UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value());
-                    String url =  UrlResolver.combinePath(newParentPath, formattedPath);
-                    urls.add(new ResourceUrlAndMethod(url, httpMethod));
-                } else {
-                    urls.add(new ResourceUrlAndMethod(newParentPath, httpMethod));
-                }
-            }
-            if (!isRestAnnotationMethod && method.isAnnotationPresent(Path.class)) {
-                String nextParentPath = UrlResolver.combinePath(newParentPath, UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value()));
-                resolveUrlAndMethodOfResource(urls, nextParentPath, method.getReturnType());
+            String methodFullPath = getFullResourcePath(method, resourceFullPath);
+            if (AnnotationResolver.isRestAnnotationMethod(method)) {
+                urls.add(new ResourceUrlAndMethod(methodFullPath, AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method)));
+            } else if (method.isAnnotationPresent(Path.class)) {
+                resolveUrlAndMethodOfResource(urls, methodFullPath, method.getReturnType());
             }
         });
     }
 
     private ResponseResult resolveResponseResultOfResource(RequestEntity requestEntity, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
-        String newParentPath = getCurrentResourcePath(resource, parentPath);
+        String resourceFullPath = getFullResourcePath(resource, parentPath);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         for (Method method : publicMethods) {
-            boolean isRestAnnotationMethod = AnnotationResolver.isRestAnnotationMethod(method);
-            if (isRestAnnotationMethod) {
-                HttpMethod httpMethod = AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method);
-                if (method.isAnnotationPresent(Path.class)) {
-                    String formattedPath = UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value());
-                    String url =  UrlResolver.combinePath(newParentPath, formattedPath);
-                    ResponseResult result = getResponseResult(requestEntity, resourceInstance, url, method, httpMethod);
-                    if (result != null) return result;
-                } else {
-                    ResponseResult result = getResponseResult(requestEntity, resourceInstance, newParentPath, method, httpMethod);
-                    if (result != null) return result;
+            String methodFullPath = getFullResourcePath(method, resourceFullPath);
+            if (AnnotationResolver.isRestAnnotationMethod(method)) {
+                if (isMatchUrlAndMethod(requestEntity, methodFullPath, AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method))) {
+                    Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(methodFullPath, requestEntity.getPath());
+                    Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
+                    Object result1 = method.invoke(resourceInstance, arguments);
+                    return new ResponseResult(OK, result1);
                 }
-            }
-            if (!isRestAnnotationMethod && method.isAnnotationPresent(Path.class)) {
-                String nextParentPath = UrlResolver.combinePath(newParentPath, UrlResolver.getFormattedPath(method.getAnnotation(Path.class).value()));
-                Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(nextParentPath, requestEntity.getPath());
+            } else if (method.isAnnotationPresent(Path.class)) {
+                Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(methodFullPath, requestEntity.getPath());
                 Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
                 Object returnTypeInstance = method.invoke(resourceInstance, arguments);
-                ResponseResult responseResult = resolveResponseResultOfResource(requestEntity, nextParentPath, method.getReturnType(), returnTypeInstance);
+                ResponseResult responseResult = resolveResponseResultOfResource(requestEntity, methodFullPath, method.getReturnType(), returnTypeInstance);
                 if (responseResult != null) return responseResult;
             }
-        }
-        return null;
-    }
-
-    private ResponseResult getResponseResult(RequestEntity requestEntity, Object resourceInstance, String newParentPath, Method method, HttpMethod httpMethod) throws IllegalAccessException, InvocationTargetException {
-        if (isMatchUrlAndMethod(requestEntity, newParentPath, httpMethod)) {
-            Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(newParentPath, requestEntity.getPath());
-            Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
-            Object result = method.invoke(resourceInstance, arguments);
-            return new ResponseResult(OK, result);
         }
         return null;
     }
@@ -106,9 +82,9 @@ public class RequestResolver {
         return UrlResolver.isMatchPath(url, requestEntity.getPath()) && httpMethod.equals(requestEntity.getMethod());
     }
 
-    private String getCurrentResourcePath(Class<?> resource, String parentPath) {
-        if (resource.isAnnotationPresent(Path.class)) {
-            return UrlResolver.combinePath(parentPath, UrlResolver.getFormattedPath(resource.getAnnotation(Path.class).value()));
+    private String getFullResourcePath(AnnotatedElement element, String parentPath) {
+        if (element.isAnnotationPresent(Path.class)) {
+            return UrlResolver.combinePath(parentPath, UrlResolver.getFormattedPath(element.getAnnotation(Path.class).value()));
         }
         return parentPath;
     }
