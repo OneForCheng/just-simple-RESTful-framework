@@ -62,20 +62,20 @@ public class RequestResolver {
             String methodFullPath = getFullResourcePath(method, resourceFullPath);
             if (AnnotationResolver.isRestAnnotationMethod(method)) {
                 if (isMatchUrlAndMethod(requestEntity, methodFullPath, AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method))) {
-                    Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(methodFullPath, requestEntity.getPath());
-                    Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
-                    Object result1 = method.invoke(resourceInstance, arguments);
-                    return new ResponseResult(OK, result1);
+                    return new ResponseResult(OK, getResourceMethodResult(resourceInstance, method, methodFullPath, requestEntity));
                 }
             } else if (method.isAnnotationPresent(Path.class)) {
-                Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(methodFullPath, requestEntity.getPath());
-                Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
-                Object returnTypeInstance = method.invoke(resourceInstance, arguments);
-                ResponseResult responseResult = resolveResponseResultOfResource(requestEntity, methodFullPath, method.getReturnType(), returnTypeInstance);
+                ResponseResult responseResult = resolveResponseResultOfResource(requestEntity, methodFullPath, method.getReturnType(), getResourceMethodResult(resourceInstance, method, methodFullPath, requestEntity));
                 if (responseResult != null) return responseResult;
             }
         }
         return null;
+    }
+
+    private Object getResourceMethodResult(Object resourceInstance, Method method, String methodFullPath, RequestEntity requestEntity) throws IllegalAccessException, InvocationTargetException {
+        Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(methodFullPath, requestEntity.getPath());
+        Object[] arguments = ParamResolver.getParameterInstances(method, requestEntity, pathParameters);
+        return method.invoke(resourceInstance, arguments);
     }
 
     private boolean isMatchUrlAndMethod(RequestEntity requestEntity, String url, HttpMethod httpMethod) {
