@@ -61,7 +61,7 @@ public class RequestResolver {
         for (Method method : publicMethods) {
             String methodFullPath = getFullResourcePath(method, resourceFullPath);
             if (AnnotationResolver.isRestAnnotationMethod(method)) {
-                if (isMatchUrlAndMethod(requestEntity, methodFullPath, AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method))) {
+                if (isMatchUrlAndHttpMethod(requestEntity, methodFullPath, AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method))) {
                     return new ResponseResult(OK, getResourceMethodResult(resourceInstance, method, methodFullPath, requestEntity));
                 }
             } else if (method.isAnnotationPresent(Path.class)) {
@@ -78,7 +78,7 @@ public class RequestResolver {
         return method.invoke(resourceInstance, arguments);
     }
 
-    private boolean isMatchUrlAndMethod(RequestEntity requestEntity, String url, HttpMethod httpMethod) {
+    private boolean isMatchUrlAndHttpMethod(RequestEntity requestEntity, String url, HttpMethod httpMethod) {
         return UrlResolver.isMatchPath(url, requestEntity.getPath()) && httpMethod.equals(requestEntity.getMethod());
     }
 
@@ -93,7 +93,7 @@ public class RequestResolver {
         try {
             RequestEntity requestEntity = RequestEntity.of(request);
             for (Map.Entry<Class<?>, List<ResourceUrlAndMethod>> resource : resources.entrySet()) {
-                if (resource.getValue().stream().anyMatch(item -> isMatchUrlAndMethod(requestEntity, item.getUrl(), item.getMethod()))) {
+                if (resource.getValue().stream().anyMatch(item -> isMatchUrlAndHttpMethod(requestEntity, item.getUrl(), item.getMethod()))) {
                     return resolveResponseResultOfResource(requestEntity, UrlResolver.PATH_SEPARATOR, resource.getKey(), injectContainer.getInstance(resource.getKey()));
                 }
             }
