@@ -27,7 +27,7 @@
   - [x] 支持查询参数（QueryParam）
   - [x] 支持路径参数（PathParam）
   - [x] 支持Body参数（RequestBody）
-- [ ] 用 Composite pattern 重构递归算法（面向对象的递归）
+- [x] 用 Composite pattern 重构递归算法（面向对象的递归）
 - [x] 添加测试（覆盖核心的解析代码）
   - [x] 添加 RequestResolver 的单元测试
 - [ ] 获取请求上下文（Context： Request & Request）

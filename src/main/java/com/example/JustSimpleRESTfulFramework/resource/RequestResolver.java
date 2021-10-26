@@ -4,6 +4,9 @@ import com.example.JustSimpleRESTfulFramework.annotation.method.Path;
 import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
 import com.example.JustSimpleRESTfulFramework.model.ResourceUrlAndMethod;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
+import com.example.JustSimpleRESTfulFramework.resource.composite.ResourceComponent;
+import com.example.JustSimpleRESTfulFramework.resource.composite.ResourceComposite;
+import com.example.JustSimpleRESTfulFramework.resource.composite.ResourceItem;
 import com.thoughtworks.InjectContainer.InjectContainer;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
@@ -16,23 +19,12 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class RequestResolver {
-    private final Map<Class<?>, List<ResourceUrlAndMethod>> resources;
+    private final Map<Class<?>, ResourceComponent> resources;
     private final InjectContainer injectContainer;
 
     public RequestResolver(Class<?> bootstrapClass) {
-        resources = getResources(bootstrapClass);
         injectContainer = getInjectContainer(bootstrapClass);
-    }
-
-    private Map<Class<?>, List<ResourceUrlAndMethod>> getResources(Class<?> bootstrapClass) {
-        Map<Class<?>, List<ResourceUrlAndMethod>> resources = Collections.synchronizedMap(new HashMap<>());
-        Class<?>[] routeResources = AnnotationResolver.getAnnotatedRouteResources(bootstrapClass);
-        Arrays.stream(routeResources).forEach(resource -> {
-            List<ResourceUrlAndMethod> urls = new LinkedList<>();
-            resolveUrlAndMethodOfResource(urls, UrlResolver.PATH_SEPARATOR, resource);
-            resources.put(resource, urls);
-        });
-        return resources;
+        resources = getResources(bootstrapClass);
     }
 
     private InjectContainer getInjectContainer(Class<?> bootstrapClass) {
@@ -42,17 +34,28 @@ public class RequestResolver {
         return injectContainer;
     }
 
-    private void resolveUrlAndMethodOfResource(List<ResourceUrlAndMethod> urls, String parentPath, Class<?> resource) {
+    private Map<Class<?>, ResourceComponent> getResources(Class<?> bootstrapClass) {
+        Map<Class<?>, ResourceComponent> resources = Collections.synchronizedMap(new HashMap<>());
+        Class<?>[] routeResources = AnnotationResolver.getAnnotatedRouteResources(bootstrapClass);
+        Arrays.stream(routeResources).forEach(resource -> resources.put(resource, getResourceComponent(UrlResolver.PATH_SEPARATOR, resource)));
+        return resources;
+    }
+
+    private ResourceComponent getResourceComponent(String parentPath, Class<?> resource) {
+        ResourceComposite resourceComposite = new ResourceComposite();
         String resourceFullPath = getFullResourcePath(resource, parentPath);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         publicMethods.forEach(method -> {
             String methodFullPath = getFullResourcePath(method, resourceFullPath);
             if (AnnotationResolver.isRestAnnotationMethod(method)) {
-                urls.add(new ResourceUrlAndMethod(methodFullPath, AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method)));
+                ResourceItem resourceComponent = new ResourceItem(new ResourceUrlAndMethod(methodFullPath, AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method)));
+                resourceComposite.add(resourceComponent);
             } else if (method.isAnnotationPresent(Path.class)) {
-                resolveUrlAndMethodOfResource(urls, methodFullPath, method.getReturnType());
+                ResourceComponent resourceComponent = getResourceComponent(methodFullPath, method.getReturnType());
+                resourceComposite.add(resourceComponent);
             }
         });
+        return  resourceComposite;
     }
 
     private ResponseResult resolveResponseResultOfResource(RequestEntity requestEntity, String parentPath, Class<?> resource, Object resourceInstance) throws InvocationTargetException, IllegalAccessException {
@@ -92,8 +95,8 @@ public class RequestResolver {
     public ResponseResult resolve(FullHttpRequest request) {
         try {
             RequestEntity requestEntity = RequestEntity.of(request);
-            for (Map.Entry<Class<?>, List<ResourceUrlAndMethod>> resource : resources.entrySet()) {
-                if (resource.getValue().stream().anyMatch(item -> isMatchUrlAndHttpMethod(requestEntity, item.getUrl(), item.getMethod()))) {
+            for (Map.Entry<Class<?>, ResourceComponent> resource : resources.entrySet()) {
+                if (resource.getValue().isMatch(requestEntity)) {
                     return resolveResponseResultOfResource(requestEntity, UrlResolver.PATH_SEPARATOR, resource.getKey(), injectContainer.getInstance(resource.getKey()));
                 }
             }
