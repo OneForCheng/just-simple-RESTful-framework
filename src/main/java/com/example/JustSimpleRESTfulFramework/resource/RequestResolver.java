@@ -11,15 +11,13 @@ import com.thoughtworks.InjectContainer.InjectContainer;
 import io.netty.handler.codec.http.FullHttpRequest;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 
 public class RequestResolver {
-    private final List<ResourceComponent> resources;
+    private final Map<Class<?>, ResourceComponent> resources;
     private final InjectContainer injectContainer;
 
     public RequestResolver(Class<?> bootstrapClass) {
@@ -34,15 +32,15 @@ public class RequestResolver {
         return injectContainer;
     }
 
-    private List<ResourceComponent> getResources(Class<?> bootstrapClass) {
-        List<ResourceComponent> resources = new LinkedList<>();
+    private Map<Class<?>, ResourceComponent> getResources(Class<?> bootstrapClass) {
+        Map<Class<?>, ResourceComponent> resources = Collections.synchronizedMap(new HashMap<>());
         Class<?>[] routeResources = AnnotationResolver.getAnnotatedRouteResources(bootstrapClass);
-        Arrays.stream(routeResources).forEach(resource -> resources.add(getResourceComponent(UrlResolver.PATH_SEPARATOR, resource, null)));
+        Arrays.stream(routeResources).forEach(resource -> resources.put(resource, getResourceComponent(UrlResolver.PATH_SEPARATOR, resource, null)));
         return resources;
     }
 
     private ResourceComponent getResourceComponent(String parentPath, Class<?> resource, Method resourceMethod) {
-        ResourceComposite resourceComposite = new ResourceComposite(resource, new ResourceEntity(parentPath, null, resourceMethod));
+        ResourceComposite resourceComposite = new ResourceComposite(new ResourceEntity(parentPath, null, resourceMethod));
         String resourceFullPath = AnnotationResolver.getResourceFullPath(parentPath, resource);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         publicMethods.forEach(method -> {
@@ -61,9 +59,9 @@ public class RequestResolver {
     public ResponseResult resolve(FullHttpRequest request) {
         try {
             RequestEntity requestEntity = RequestEntity.of(request);
-            for (ResourceComponent resource: resources) {
-                if (resource.isMatch(requestEntity)) {
-                    return resource.resolve(requestEntity, injectContainer.getInstance(resource.get()));
+            for (Map.Entry<Class<?>, ResourceComponent> resource : resources.entrySet()) {
+                if (resource.getValue().isMatch(requestEntity)) {
+                    return resource.getValue().resolve(requestEntity, injectContainer.getInstance(resource.getKey()));
                 }
             }
         } catch (Exception e) {

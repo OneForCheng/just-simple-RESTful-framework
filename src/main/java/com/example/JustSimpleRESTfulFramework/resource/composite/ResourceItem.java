@@ -14,9 +14,6 @@ public class ResourceItem extends ResourceComponent {
     }
 
     @Override
-    public Class<?> get() { return null; }
-
-    @Override
     public void add(ResourceComponent resourceComponent) { }
 
     @Override

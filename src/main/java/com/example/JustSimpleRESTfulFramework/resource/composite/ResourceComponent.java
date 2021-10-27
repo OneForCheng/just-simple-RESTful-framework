@@ -16,16 +16,16 @@ public abstract class ResourceComponent {
         this.resourceEntity = resourceEntity;
     }
 
-    public abstract Class<?> get();
-    public abstract void add(ResourceComponent resourceComponent);
-    public abstract boolean isMatch(RequestEntity requestEntity);
-    public abstract ResponseResult resolve(RequestEntity requestEntity, Object resourceInstance);
-
     @SneakyThrows
     public Object getResourceInstance(Object resourceInstance, RequestEntity requestEntity) {
         Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(resourceEntity.getUrl(), requestEntity.getPath());
         Object[] arguments = ParamResolver.getParameterInstances(resourceEntity.getMethod(), requestEntity, pathParameters);
         return resourceEntity.getMethod().invoke(resourceInstance, arguments);
     }
+
+    public abstract void add(ResourceComponent resourceComponent);
+    public abstract boolean isMatch(RequestEntity requestEntity);
+    public abstract ResponseResult resolve(RequestEntity requestEntity, Object resourceInstance);
+
 }
 

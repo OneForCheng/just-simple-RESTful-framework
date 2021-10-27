@@ -11,16 +11,9 @@ import java.util.List;
 public class ResourceComposite extends ResourceComponent {
 
     private final List<ResourceComponent> resourceComponents = new LinkedList<>();
-    private final Class<?> resource;
 
-    public ResourceComposite(Class<?> resource, ResourceEntity resourceEntity) {
+    public ResourceComposite(ResourceEntity resourceEntity) {
         super(resourceEntity);
-        this.resource = resource;
-    }
-
-    @Override
-    public Class<?> get() {
-        return resource;
     }
 
     @Override
