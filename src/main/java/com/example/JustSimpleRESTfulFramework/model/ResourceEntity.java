@@ -4,9 +4,12 @@ import io.netty.handler.codec.http.HttpMethod;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.lang.reflect.Method;
+
 @Data
 @AllArgsConstructor
-public class ResourceUrlAndMethod {
+public class ResourceEntity {
     private String url;
-    private HttpMethod method;
+    private HttpMethod httpMethod;
+    private Method method;
 }

@@ -34,80 +34,80 @@ class RequestResolverTest {
     void should_get_NOT_FOUND_when_url_of_request_is_not_matched() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/not-match-path");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.NOT_FOUND);
-        assertEquals(result.getResult(), "Not Found");
+        assertEquals(HttpResponseStatus.NOT_FOUND, result.getStatus());
+        assertEquals("Not Found", result.getResult());
     }
 
     @Test
     void should_get_OK_when_url_of_request_is_matched_and_http_method_is_GET() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.OK);
-        assertEquals(result.getResult(), "test_get");
+        assertEquals(HttpResponseStatus.OK, result.getStatus());
+        assertEquals("test_get", result.getResult());
     }
 
     @Test
     void should_get_OK_when_url_of_request_is_matched_and_http_method_is_POST() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.POST, "/test");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.OK);
-        assertEquals(result.getResult(), "test_post");
+        assertEquals(HttpResponseStatus.OK, result.getStatus());
+        assertEquals("test_post", result.getResult());
     }
 
     @Test
     void should_get_OK_when_url_of_request_is_matched_with_sub_resource() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/sub-resource/get");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.OK);
-        assertEquals(result.getResult(), "test_sub_resource");
+        assertEquals(HttpResponseStatus.OK, result.getStatus());
+        assertEquals("test_sub_resource", result.getResult());
     }
 
     @Test
     void should_get_string_query_param_when_url_of_request_is_matched_and_with_query_param() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/string-query-param?name=hello");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.OK);
-        assertEquals(result.getResult(), "hello");
+        assertEquals(HttpResponseStatus.OK, result.getStatus());
+        assertEquals("hello", result.getResult());
     }
 
     @Test
     void should_get_integer_query_param_when_url_of_request_is_matched_and_with_query_param() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/integer-query-param?count=10");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.OK);
-        assertEquals(result.getResult(), 10);
+        assertEquals(HttpResponseStatus.OK, result.getStatus());
+        assertEquals(10, result.getResult());
     }
 
     @Test
     void should_get_array_query_param_when_url_of_request_is_matched_and_with_query_param() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/array-query-param?tags=1&tags=abc&tags=hello");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        assertEquals(HttpResponseStatus.OK, result.getStatus());
         String[] tags = (String[])result.getResult();
-        assertEquals(tags.length, 3);
-        assertEquals(tags[0], "1");
-        assertEquals(tags[1], "abc");
-        assertEquals(tags[2], "hello");
+        assertEquals(3, tags.length);
+        assertEquals("1", tags[0]);
+        assertEquals("abc", tags[1]);
+        assertEquals("hello", tags[2]);
     }
 
     @Test
     void should_get_list_query_param_when_url_of_request_is_matched_and_with_query_param() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/list-query-param?tags=1&tags=abc&tags=hello");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        assertEquals(HttpResponseStatus.OK, result.getStatus());
         List<String> tags = (List<String>)result.getResult();
-        assertEquals(tags.size(), 3);
-        assertEquals(tags.get(0), "1");
-        assertEquals(tags.get(1), "abc");
-        assertEquals(tags.get(2), "hello");
+        assertEquals(3, tags.size());
+        assertEquals("1", tags.get(0));
+        assertEquals("abc", tags.get(1));
+        assertEquals("hello", tags.get(2));
     }
 
     @Test
     void should_get_path_param_when_url_of_request_is_matched_and_with_path_param() {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test/path-param/123?id=456");
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.OK);
-        assertEquals(result.getResult(), "123");
+        assertEquals(HttpResponseStatus.OK, result.getStatus());
+        assertEquals("123", result.getResult());
     }
 
     @Test
@@ -116,10 +116,10 @@ class RequestResolverTest {
         byte[] bytes = JSON.toJSONBytes(body, SerializerFeature.EMPTY);
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.POST, "/test/request-body", Unpooled.wrappedBuffer(bytes));
         ResponseResult result = requestResolver.resolve(httpRequest);
-        assertEquals(result.getStatus(), HttpResponseStatus.OK);
+        assertEquals(HttpResponseStatus.OK, result.getStatus());
         TestRequestBody data = (TestRequestBody)result.getResult();
-        assertEquals(data.getId(), body.getId());
-        assertEquals(data.getName(), body.getName());
-        assertEquals(data.getAge(), body.getAge(), 0.0001);
+        assertEquals(body.getId(), data.getId());
+        assertEquals(body.getName(), data.getName());
+        assertEquals(body.getAge(), 0.0001, data.getAge());
     }
 }

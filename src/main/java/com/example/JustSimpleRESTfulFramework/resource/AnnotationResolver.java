@@ -1,12 +1,10 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.example.JustSimpleRESTfulFramework.annotation.*;
-import com.example.JustSimpleRESTfulFramework.annotation.method.DELETE;
-import com.example.JustSimpleRESTfulFramework.annotation.method.GET;
-import com.example.JustSimpleRESTfulFramework.annotation.method.POST;
-import com.example.JustSimpleRESTfulFramework.annotation.method.PUT;
+import com.example.JustSimpleRESTfulFramework.annotation.method.*;
 import io.netty.handler.codec.http.HttpMethod;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -41,5 +39,12 @@ public class AnnotationResolver {
             return clazz.getAnnotation(RouteResource.class).qualifiers();
         }
         return new Class[0];
+    }
+
+    public static String getResourceFullPath(String parentPath, AnnotatedElement element) {
+        if (element.isAnnotationPresent(Path.class)) {
+            return UrlResolver.combinePath(parentPath, UrlResolver.getFormattedPath(element.getAnnotation(Path.class).value()));
+        }
+        return parentPath;
     }
 }
