@@ -3,19 +3,15 @@ package com.example.JustSimpleRESTfulFramework.resource.composite;
 import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
 import com.example.JustSimpleRESTfulFramework.model.ResourceEntity;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
-import com.example.JustSimpleRESTfulFramework.resource.ParamResolver;
 import com.example.JustSimpleRESTfulFramework.resource.UrlResolver;
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-
-import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
-@AllArgsConstructor
 public class ResourceItem extends ResourceComponent {
-
-    private final ResourceEntity resourceEntity;
+    public ResourceItem(ResourceEntity resourceEntity) {
+        super(resourceEntity);
+    }
 
     @Override
     public Class<?> get() { return null; }
@@ -38,13 +34,5 @@ public class ResourceItem extends ResourceComponent {
             return new ResponseResult(OK, getResourceInstance(resourceInstance, requestEntity));
         }
         return null;
-    }
-
-    @SneakyThrows
-    @Override
-    public Object getResourceInstance(Object resourceInstance, RequestEntity requestEntity) {
-        Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(resourceEntity.getUrl(), requestEntity.getPath());
-        Object[] arguments = ParamResolver.getParameterInstances(resourceEntity.getMethod(), requestEntity, pathParameters);
-        return resourceEntity.getMethod().invoke(resourceInstance, arguments);
     }
 }

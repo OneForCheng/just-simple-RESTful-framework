@@ -3,23 +3,19 @@ package com.example.JustSimpleRESTfulFramework.resource.composite;
 import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
 import com.example.JustSimpleRESTfulFramework.model.ResourceEntity;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
-import com.example.JustSimpleRESTfulFramework.resource.ParamResolver;
-import com.example.JustSimpleRESTfulFramework.resource.UrlResolver;
 import lombok.SneakyThrows;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class ResourceComposite extends ResourceComponent {
 
     private final List<ResourceComponent> resourceComponents = new LinkedList<>();
     private final Class<?> resource;
-    private final ResourceEntity resourceEntity;
 
     public ResourceComposite(Class<?> resource, ResourceEntity resourceEntity) {
+        super(resourceEntity);
         this.resource = resource;
-        this.resourceEntity = resourceEntity;
     }
 
     @Override
@@ -61,13 +57,5 @@ public class ResourceComposite extends ResourceComponent {
             }
         }
         return null;
-    }
-
-    @SneakyThrows
-    @Override
-    public Object getResourceInstance(Object resourceInstance, RequestEntity requestEntity) {
-        Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(resourceEntity.getUrl(), requestEntity.getPath());
-        Object[] arguments = ParamResolver.getParameterInstances(resourceEntity.getMethod(), requestEntity, pathParameters);
-        return resourceEntity.getMethod().invoke(resourceInstance, arguments);
     }
 }
