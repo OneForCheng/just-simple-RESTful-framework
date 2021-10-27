@@ -17,7 +17,7 @@ public abstract class ResourceComponent {
     }
 
     @SneakyThrows
-    public Object getResourceInstance(Object resourceInstance, RequestEntity requestEntity) {
+    protected Object invoke(Object resourceInstance, RequestEntity requestEntity) {
         Map<String, String> pathParameters = UrlResolver.getUrlPathParameters(resourceEntity.getUrl(), requestEntity.getPath());
         Object[] arguments = ParamResolver.getParameterInstances(resourceEntity.getMethod(), requestEntity, pathParameters);
         return resourceEntity.getMethod().invoke(resourceInstance, arguments);
