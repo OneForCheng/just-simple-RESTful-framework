@@ -25,7 +25,7 @@ public abstract class ResourceComponent {
 
     public abstract void add(ResourceComponent resourceComponent);
     public abstract boolean isMatch(RequestEntity requestEntity);
-    public abstract ResponseResult resolve(RequestEntity requestEntity, Object resourceInstance);
+    public abstract ResponseResult resolve(Object resourceInstance, RequestEntity requestEntity);
 
 }
 

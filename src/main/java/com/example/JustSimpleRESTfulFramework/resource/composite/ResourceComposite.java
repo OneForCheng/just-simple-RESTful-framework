@@ -33,13 +33,13 @@ public class ResourceComposite extends ResourceComponent {
 
     @SneakyThrows
     @Override
-    public ResponseResult resolve(RequestEntity requestEntity, Object resourceInstance) {
+    public ResponseResult resolve(Object resourceInstance, RequestEntity requestEntity) {
         for (ResourceComponent resourceComponent : resourceComponents) {
             Object newResourceInstance = resourceInstance;
             if (resourceComponent instanceof ResourceComposite) {
                 newResourceInstance = resourceComponent.getResourceInstance(resourceInstance, requestEntity);
             }
-            ResponseResult responseResult = resourceComponent.resolve(requestEntity, newResourceInstance);
+            ResponseResult responseResult = resourceComponent.resolve(newResourceInstance, requestEntity);
             if (responseResult != null) {
                 return responseResult;
             }

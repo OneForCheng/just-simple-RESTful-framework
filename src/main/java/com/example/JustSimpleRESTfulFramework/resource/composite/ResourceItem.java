@@ -23,7 +23,7 @@ public class ResourceItem extends ResourceComponent {
 
     @SneakyThrows
     @Override
-    public ResponseResult resolve(RequestEntity requestEntity, Object resourceInstance) {
+    public ResponseResult resolve(Object resourceInstance, RequestEntity requestEntity) {
         if (isMatch(requestEntity)) {
             return new ResponseResult(OK, getResourceInstance(resourceInstance, requestEntity));
         }

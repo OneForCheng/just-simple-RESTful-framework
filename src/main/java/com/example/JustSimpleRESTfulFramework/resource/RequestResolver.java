@@ -61,7 +61,7 @@ public class RequestResolver {
             RequestEntity requestEntity = RequestEntity.of(request);
             for (Map.Entry<Class<?>, ResourceComponent> resource : resources.entrySet()) {
                 if (resource.getValue().isMatch(requestEntity)) {
-                    return resource.getValue().resolve(requestEntity, injectContainer.getInstance(resource.getKey()));
+                    return resource.getValue().resolve(injectContainer.getInstance(resource.getKey()), requestEntity);
                 }
             }
         } catch (Exception e) {
