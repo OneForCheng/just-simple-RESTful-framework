@@ -29,11 +29,6 @@ public class ResourceComposite extends ResourceComponent {
     }
 
     @Override
-    public void remove(ResourceComponent resourceComponent) {
-        resourceComponents.remove(resourceComponent);
-    }
-
-    @Override
     public boolean isMatch(RequestEntity requestEntity) {
         for (ResourceComponent resourceComponent : resourceComponents) {
             if (resourceComponent.isMatch(requestEntity)) {

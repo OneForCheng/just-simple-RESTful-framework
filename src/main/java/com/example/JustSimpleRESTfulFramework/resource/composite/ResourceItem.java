@@ -20,9 +20,6 @@ public class ResourceItem extends ResourceComponent {
     public void add(ResourceComponent resourceComponent) { }
 
     @Override
-    public void remove(ResourceComponent resourceComponent) { }
-
-    @Override
     public boolean isMatch(RequestEntity requestEntity) {
         return UrlResolver.isMatchPath(resourceEntity.getUrl(), requestEntity.getPath()) && resourceEntity.getHttpMethod().equals(requestEntity.getMethod());
     }
