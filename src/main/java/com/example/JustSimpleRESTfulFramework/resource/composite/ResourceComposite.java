@@ -1,7 +1,7 @@
 package com.example.JustSimpleRESTfulFramework.resource.composite;
 
 import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
-import com.example.JustSimpleRESTfulFramework.model.ResourceEntity;
+import com.example.JustSimpleRESTfulFramework.model.ResourceNode;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import lombok.SneakyThrows;
 
@@ -12,8 +12,8 @@ public class ResourceComposite extends ResourceComponent {
 
     private final List<ResourceComponent> resourceComponents = new LinkedList<>();
 
-    public ResourceComposite(ResourceEntity resourceEntity) {
-        super(resourceEntity);
+    public ResourceComposite(ResourceNode resourceNode) {
+        super(resourceNode);
     }
 
     @Override

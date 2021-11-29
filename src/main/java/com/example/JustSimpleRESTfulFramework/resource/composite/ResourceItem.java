@@ -1,7 +1,7 @@
 package com.example.JustSimpleRESTfulFramework.resource.composite;
 
 import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
-import com.example.JustSimpleRESTfulFramework.model.ResourceEntity;
+import com.example.JustSimpleRESTfulFramework.model.ResourceNode;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import com.example.JustSimpleRESTfulFramework.resource.UrlResolver;
 import lombok.SneakyThrows;
@@ -9,8 +9,8 @@ import lombok.SneakyThrows;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 public class ResourceItem extends ResourceComponent {
-    public ResourceItem(ResourceEntity resourceEntity) {
-        super(resourceEntity);
+    public ResourceItem(ResourceNode resourceNode) {
+        super(resourceNode);
     }
 
     @Override
@@ -18,7 +18,7 @@ public class ResourceItem extends ResourceComponent {
 
     @Override
     public boolean isMatch(RequestEntity requestEntity) {
-        return UrlResolver.isMatchPath(resourceEntity.getUrl(), requestEntity.getPath()) && resourceEntity.getHttpMethod().equals(requestEntity.getMethod());
+        return UrlResolver.isMatchPath(resourceNode.getUrl(), requestEntity.getPath()) && resourceNode.getHttpMethod().equals(requestEntity.getMethod());
     }
 
     @SneakyThrows

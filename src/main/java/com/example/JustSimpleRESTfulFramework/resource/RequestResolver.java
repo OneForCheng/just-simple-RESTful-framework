@@ -1,7 +1,7 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
-import com.example.JustSimpleRESTfulFramework.model.ResourceEntity;
+import com.example.JustSimpleRESTfulFramework.model.ResourceNode;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
 import com.example.JustSimpleRESTfulFramework.resource.composite.ResourceComponent;
 import com.example.JustSimpleRESTfulFramework.resource.composite.ResourceComposite;
@@ -40,13 +40,13 @@ public class RequestResolver {
     }
 
     private ResourceComponent getResourceComponent(String parentPath, Class<?> resource, Method resourceMethod) {
-        ResourceComposite resourceComposite = new ResourceComposite(new ResourceEntity(parentPath, null, resourceMethod));
+        ResourceComposite resourceComposite = new ResourceComposite(new ResourceNode(parentPath, null, resourceMethod));
         String resourceFullPath = AnnotationResolver.getResourceFullPath(parentPath, resource);
         List<Method> publicMethods = ClassResolver.getPublicMethods(resource);
         publicMethods.forEach(method -> {
             String methodFullPath = AnnotationResolver.getResourceFullPath(resourceFullPath, method);
             if (AnnotationResolver.isRestAnnotationMethod(method)) {
-                ResourceItem resourceComponent = new ResourceItem(new ResourceEntity(methodFullPath, AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method), method));
+                ResourceItem resourceComponent = new ResourceItem(new ResourceNode(methodFullPath, AnnotationResolver.getHttpMethodFromRestAnnotationMethod(method), method));
                 resourceComposite.add(resourceComponent);
             } else if (method.isAnnotationPresent(Path.class)) {
                 ResourceComponent resourceComponent = getResourceComponent(methodFullPath, method.getReturnType(), method);

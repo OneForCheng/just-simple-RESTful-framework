@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 
 @Data
 @AllArgsConstructor
-public class ResourceEntity {
+public class ResourceNode {
     private String url;
     private HttpMethod httpMethod;
     private Method method;
