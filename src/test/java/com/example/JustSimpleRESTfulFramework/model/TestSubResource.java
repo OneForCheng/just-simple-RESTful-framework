@@ -1,7 +1,7 @@
 package com.example.JustSimpleRESTfulFramework.model;
 
-import com.example.JustSimpleRESTfulFramework.annotation.method.GET;
-import com.example.JustSimpleRESTfulFramework.annotation.method.Path;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 
 public class TestSubResource {
     @GET

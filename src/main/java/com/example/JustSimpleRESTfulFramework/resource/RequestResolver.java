@@ -1,6 +1,5 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
-import com.example.JustSimpleRESTfulFramework.annotation.method.Path;
 import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
 import com.example.JustSimpleRESTfulFramework.model.ResourceEntity;
 import com.example.JustSimpleRESTfulFramework.model.ResponseResult;
@@ -10,6 +9,7 @@ import com.example.JustSimpleRESTfulFramework.resource.composite.ResourceItem;
 import com.thoughtworks.InjectContainer.InjectContainer;
 import io.netty.handler.codec.http.FullHttpRequest;
 
+import javax.ws.rs.Path;
 import java.lang.reflect.Method;
 import java.util.*;
 

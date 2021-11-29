@@ -17,6 +17,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
 
 	implementation 'com.alibaba:fastjson:1.2.73'
+	implementation 'javax.ws.rs:javax.ws.rs-api:2.0'
 
 	implementation files("$projectDir/libs/InjectContainer-0.0.1.jar")
 

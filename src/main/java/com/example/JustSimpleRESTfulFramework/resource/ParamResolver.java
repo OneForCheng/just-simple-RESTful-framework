@@ -1,13 +1,13 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.alibaba.fastjson.JSON;
-import com.example.JustSimpleRESTfulFramework.annotation.parameter.PathParam;
-import com.example.JustSimpleRESTfulFramework.annotation.parameter.QueryParam;
-import com.example.JustSimpleRESTfulFramework.annotation.parameter.RequestBody;
 import com.example.JustSimpleRESTfulFramework.exception.BadRequestException;
 import com.example.JustSimpleRESTfulFramework.model.RequestEntity;
 import io.netty.util.CharsetUtil;
 
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.LinkedList;
@@ -27,7 +27,7 @@ public class ParamResolver {
             } else if (parameter.isAnnotationPresent(PathParam.class)) {
                 String paramName = parameter.getAnnotation(PathParam.class).value();
                 parameterInstances.add(pathParameters.get(paramName));
-            } else if (parameter.isAnnotationPresent(RequestBody.class)) {
+            } else if (parameter.isAnnotationPresent(BeanParam.class)) {
                 String body = requestEntity.getBody().toString(CharsetUtil.UTF_8);
                 parameterInstances.add(JSON.parseObject(body, parameter.getType()));
             }

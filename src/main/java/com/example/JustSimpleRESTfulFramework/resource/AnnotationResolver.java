@@ -1,9 +1,9 @@
 package com.example.JustSimpleRESTfulFramework.resource;
 
 import com.example.JustSimpleRESTfulFramework.annotation.*;
-import com.example.JustSimpleRESTfulFramework.annotation.method.*;
 import io.netty.handler.codec.http.HttpMethod;
 
+import javax.ws.rs.*;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.*;

@@ -1,12 +1,6 @@
 package com.example.JustSimpleRESTfulFramework.model;
 
-import com.example.JustSimpleRESTfulFramework.annotation.method.GET;
-import com.example.JustSimpleRESTfulFramework.annotation.method.POST;
-import com.example.JustSimpleRESTfulFramework.annotation.method.Path;
-import com.example.JustSimpleRESTfulFramework.annotation.parameter.PathParam;
-import com.example.JustSimpleRESTfulFramework.annotation.parameter.QueryParam;
-import com.example.JustSimpleRESTfulFramework.annotation.parameter.RequestBody;
-
+import javax.ws.rs.*;
 import java.util.List;
 
 @Path("/test")
@@ -58,7 +52,7 @@ public class TestResource {
 
     @POST
     @Path("/request-body")
-    public TestRequestBody getRequestBody(@RequestBody TestRequestBody body) {
+    public TestRequestBody getRequestBody(@BeanParam TestRequestBody body) {
         return body;
     }
 }
