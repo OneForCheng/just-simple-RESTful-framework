@@ -25,7 +25,7 @@ public class ResourceItem extends ResourceComponent {
     @Override
     public ResponseResult resolve(Object resourceInstance, RequestEntity requestEntity) {
         if (isMatch(requestEntity)) {
-            return new ResponseResult(OK, invoke(resourceInstance, requestEntity));
+            return new ResponseResult(OK, resourceNode.invoke(resourceInstance, requestEntity));
         }
         return null;
     }
