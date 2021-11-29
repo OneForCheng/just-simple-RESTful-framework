@@ -37,7 +37,7 @@ public class ResourceComposite extends ResourceComponent {
         for (ResourceComponent resourceComponent : resourceComponents) {
             Object newResourceInstance = resourceInstance;
             if (resourceComponent instanceof ResourceComposite) {
-                newResourceInstance = resourceComponent.resourceNode.invoke(resourceInstance, requestEntity);
+                newResourceInstance = resourceComponent.getResourceNode().invoke(resourceInstance, requestEntity);
             }
             ResponseResult responseResult = resourceComponent.resolve(newResourceInstance, requestEntity);
             if (responseResult != null) {

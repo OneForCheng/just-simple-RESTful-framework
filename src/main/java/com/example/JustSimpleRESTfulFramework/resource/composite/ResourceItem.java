@@ -18,6 +18,7 @@ public class ResourceItem extends ResourceComponent {
 
     @Override
     public boolean isMatch(RequestEntity requestEntity) {
+        ResourceNode resourceNode = getResourceNode();
         return UrlResolver.isMatchPath(resourceNode.getUrl(), requestEntity.getPath()) && resourceNode.getHttpMethod().equals(requestEntity.getMethod());
     }
 
@@ -25,7 +26,9 @@ public class ResourceItem extends ResourceComponent {
     @Override
     public ResponseResult resolve(Object resourceInstance, RequestEntity requestEntity) {
         if (isMatch(requestEntity)) {
-            return new ResponseResult(OK, resourceNode.invoke(resourceInstance, requestEntity));
+            ResourceNode resourceNode = getResourceNode();
+            Object result = resourceNode.invoke(resourceInstance, requestEntity);
+            return new ResponseResult(OK, result);
         }
         return null;
     }
