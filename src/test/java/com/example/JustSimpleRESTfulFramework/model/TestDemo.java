@@ -5,6 +5,11 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import javax.ws.rs.GET;
 
 public class TestDemo {
+
+    public TestDemo create() {
+        return new TestDemo();
+    }
+
     @GET
     public String nonResponse() {
         return "test";
