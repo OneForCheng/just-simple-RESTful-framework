@@ -23,12 +23,7 @@ public class ResourceComposite extends ResourceComponent {
 
     @Override
     public boolean isMatch(RequestEntity requestEntity) {
-        for (ResourceComponent resourceComponent : resourceComponents) {
-            if (resourceComponent.isMatch(requestEntity)) {
-                return true;
-            }
-        }
-        return false;
+        return resourceComponents.stream().anyMatch(resourceComponent -> resourceComponent.isMatch(requestEntity));
     }
 
     @SneakyThrows
