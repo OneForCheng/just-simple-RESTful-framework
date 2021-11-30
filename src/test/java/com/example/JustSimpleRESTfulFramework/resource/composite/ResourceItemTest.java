@@ -32,32 +32,32 @@ class ResourceItemTest {
     @Test
     void should_return_false_if_url_is_not_matched() throws NoSuchMethodException {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test");
-        ResourceNode resourceEntity = new ResourceNode("/no-test", HttpMethod.GET, Resource.class.getMethod("nonResponse"));
-        ResourceItem item = new ResourceItem(resourceEntity);
+        ResourceNode resourceNode = new ResourceNode("/no-test", HttpMethod.GET, Resource.class.getMethod("nonResponse"));
+        ResourceItem item = new ResourceItem(resourceNode);
         assertFalse(item.isMatch(RequestEntity.of(httpRequest)));
     }
 
     @Test
     void should_return_false_if_http_method_is_not_matched() throws NoSuchMethodException {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.POST, "/test");
-        ResourceNode resourceEntity = new ResourceNode("/test", HttpMethod.GET, Resource.class.getMethod("nonResponse"));
-        ResourceItem item = new ResourceItem(resourceEntity);
+        ResourceNode resourceNode = new ResourceNode("/test", HttpMethod.GET, Resource.class.getMethod("nonResponse"));
+        ResourceItem item = new ResourceItem(resourceNode);
         assertFalse(item.isMatch(RequestEntity.of(httpRequest)));
     }
 
     @Test
     void should_return_true_if_http_method_and_url_are_matched() throws NoSuchMethodException {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test");
-        ResourceNode resourceEntity = new ResourceNode("/test", HttpMethod.GET, Resource.class.getMethod("nonResponse"));
-        ResourceItem item = new ResourceItem(resourceEntity);
+        ResourceNode resourceNode = new ResourceNode("/test", HttpMethod.GET, Resource.class.getMethod("nonResponse"));
+        ResourceItem item = new ResourceItem(resourceNode);
         assertTrue(item.isMatch(RequestEntity.of(httpRequest)));
     }
 
     @Test
     void should_wrap_response_to_result_if_object_given() throws NoSuchMethodException {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test");
-        ResourceNode resourceEntity = new ResourceNode("/test", HttpMethod.GET, Resource.class.getMethod("nonResponse"));
-        ResourceItem item = new ResourceItem(resourceEntity);
+        ResourceNode resourceNode = new ResourceNode("/test", HttpMethod.GET, Resource.class.getMethod("nonResponse"));
+        ResourceItem item = new ResourceItem(resourceNode);
         ResponseResult result = item.resolve(new Resource(), RequestEntity.of(httpRequest));
         assertEquals(HttpResponseStatus.OK, result.getStatus());
         assertEquals("test", result.getResult());
@@ -66,8 +66,8 @@ class ResourceItemTest {
     @Test
     void should_return_response_directly_if_response_given() throws NoSuchMethodException {
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, "/test");
-        ResourceNode resourceEntity = new ResourceNode("/test", HttpMethod.GET, Resource.class.getMethod("response"));
-        ResourceItem item = new ResourceItem(resourceEntity);
+        ResourceNode resourceNode = new ResourceNode("/test", HttpMethod.GET, Resource.class.getMethod("response"));
+        ResourceItem item = new ResourceItem(resourceNode);
         ResponseResult result = item.resolve(new Resource(), RequestEntity.of(httpRequest));
         assertEquals(HttpResponseStatus.ACCEPTED, result.getStatus());
         assertEquals("test", result.getResult());
